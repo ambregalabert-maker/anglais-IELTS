@@ -12,7 +12,7 @@ import { playSound } from '../lib/sound'
 import { toast } from '../store/events'
 import { useDaysToExam, useToday } from '../store/hooks'
 import { updateSettings, useProgress } from '../store/progress'
-import type { Progress } from '../store/types'
+import type { Difficulty, Progress } from '../store/types'
 
 // Toutes les leçons sont ouvertes : « next » est simplement la leçon conseillée (la première pas encore faite).
 // « soon » : thème dont le contenu n'est pas encore écrit.
@@ -39,6 +39,12 @@ function buildNodes(): PathNode[] {
 }
 
 const NODES = buildNodes()
+
+const LEVELS: { id: Difficulty; label: string }[] = [
+  { id: 'normal', label: 'Normale' },
+  { id: 'hard', label: 'Difficile 💪' },
+  { id: 'expert', label: 'Expert 🧠' },
+]
 
 const STATE_LABEL: Record<NodeState, string> = { todo: 'à faire', next: 'conseillée', done: 'terminée', mastered: 'maîtrisée', soon: 'bientôt' }
 
@@ -86,17 +92,16 @@ export default function Home() {
         </section>
       </div>
 
-      <ModuleHeader title="Chemin de vocabulaire" subtitle="Une leçon à la fois, de B1 vers le 7" color="#6c4cf5" icon={<IconPath size={36} />} />
+      <ModuleHeader title="Chemin de vocabulaire" subtitle="Une leçon à la fois, de B1 jusqu’au C2" color="#6c4cf5" icon={<IconPath size={36} />} />
 
       <div className="difficulty-row">
         <span>Difficulté</span>
         <div className="segmented">
-          <button className={p.settings.difficulty === 'normal' ? 'on' : ''} onClick={() => updateSettings({ difficulty: 'normal' })}>
-            Normale
-          </button>
-          <button className={p.settings.difficulty === 'hard' ? 'on' : ''} onClick={() => updateSettings({ difficulty: 'hard' })}>
-            Difficile 💪
-          </button>
+          {LEVELS.map((l) => (
+            <button key={l.id} className={p.settings.difficulty === l.id ? 'on' : ''} onClick={() => updateSettings({ difficulty: l.id })}>
+              {l.label}
+            </button>
+          ))}
         </div>
       </div>
 

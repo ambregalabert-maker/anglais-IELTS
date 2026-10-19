@@ -21,6 +21,7 @@ const THEMES: { id: ThemePref; label: string }[] = [
 const DIFFICULTIES: { id: Difficulty; label: string }[] = [
   { id: 'normal', label: 'Normale' },
   { id: 'hard', label: 'Difficile 💪' },
+  { id: 'expert', label: 'Expert 🧠' },
 ]
 const RATES = [
   { value: 0.75, label: 'Lente' },
@@ -149,7 +150,7 @@ export default function Profile() {
         <div className="setting">
           <span>
             <b>Difficulté des leçons</b>
-            <small>Difficile = surtout des réponses à taper, +50 % d’XP</small>
+            <small>Difficile : surtout des réponses à taper (+50 % d’XP). Expert : tout à produire, indices en anglais seulement (×2 XP)</small>
           </span>
           <div className="segmented">
             {DIFFICULTIES.map((d) => (

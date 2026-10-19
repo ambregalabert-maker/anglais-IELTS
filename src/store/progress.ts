@@ -24,6 +24,7 @@ export const DEFAULT_PROGRESS: Progress = {
   lessons: {},
   words: {},
   mistakes: {},
+  reviewSessions: 0,
   settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, difficulty: 'normal', theme: 'system' },
 }
 
@@ -143,7 +144,19 @@ function touchStreak(d: Progress) {
  * Enregistre une réponse : statistiques du jour, XP, série, et suivi des mots / erreurs.
  * `key` identifie l'exercice (pour « Mes erreurs »), `wordIds` les mots travaillés.
  */
-export function recordAnswer({ key, wordIds, correct, xp }: { key: string; wordIds: string[]; correct: boolean; xp: number }) {
+export function recordAnswer({
+  key,
+  wordIds,
+  correct,
+  xp,
+  trackMistake = true,
+}: {
+  key: string
+  wordIds: string[]
+  correct: boolean
+  xp: number
+  trackMistake?: boolean // false pour les flashcards (pas d'exercice à refaire)
+}) {
   update((d) => {
     const t = today(d)
     t.exercises++
@@ -167,8 +180,16 @@ export function recordAnswer({ key, wordIds, correct, xp }: { key: string; wordI
       d.words[id] = w
     }
     const m = d.mistakes[key]
+    if (!trackMistake) return
     if (!correct) d.mistakes[key] = { wrong: (m?.wrong ?? 0) + 1, lastWrong: now, resolved: false }
     else if (m) m.resolved = true
+  })
+}
+
+/** Une séance de révision ou de flashcards terminée. */
+export function completeReview() {
+  update((d) => {
+    d.reviewSessions++
   })
 }
 

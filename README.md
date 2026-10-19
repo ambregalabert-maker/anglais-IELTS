@@ -1,6 +1,6 @@
 # Pépin IELTS
 
-Site d'entraînement à l'IELTS Academic (objectif : 7), inspiré de la mécanique des applis de langues :
+Site d'entraînement à l'IELTS Academic (objectif : le maximum, niveau C2), inspiré de la mécanique des applis de langues :
 chemin de leçons, XP, série de jours, badges et Pépin, la mascotte.
 
 Pas de compte et pas de serveur : la progression est enregistrée dans le navigateur.
@@ -36,7 +36,7 @@ npm run build    # crée le dossier dist/, c'est lui qu'on héberge
 
 - [x] Étape 1 : navigation, design, mascotte, XP, niveaux, série, objectif du jour, badges, sauvegarde, export / import
 - [x] Étape 2 : leçons du chemin (6 unités de mes cours, 217 mots, 7 types d’exercices)
-- [ ] Étape 3 : révisions (répétition espacée, erreurs, flashcards)
+- [x] Étape 3 : révisions (répétition espacée, « Mes erreurs », flashcards) + niveaux Difficile et Expert, personnages
 - [ ] Étape 4 : Vocab Lab et nouveaux thèmes IELTS
 - [ ] Étape 5 : Writing (Task 2 guidée, mode examen, Task 1, grammaire)
 - [ ] Étape 6 : Listening (stratégies)

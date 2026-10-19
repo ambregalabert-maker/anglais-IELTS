@@ -972,3 +972,124 @@ small {
   color: var(--text-soft);
   margin-top: -6px;
 }
+
+/* ===== Révisions ===== */
+.difficulty-row {
+  flex-wrap: wrap;
+}
+.nav-icon {
+  position: relative;
+}
+.nav-badge {
+  position: absolute;
+  top: -6px;
+  right: -12px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--surface);
+  animation: popIn 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.stat-of {
+  font-size: 0.8rem;
+}
+.review-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.review-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  background: var(--surface);
+}
+.review-card.due {
+  background: linear-gradient(135deg, color-mix(in srgb, #ff5d8f 16%, var(--surface)), var(--surface));
+  border-color: color-mix(in srgb, #ff5d8f 40%, transparent);
+}
+.review-card-text {
+  flex: 1;
+  min-width: 0;
+}
+.review-card h3 {
+  font-size: 1.1rem;
+}
+.review-card p {
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.btn-review {
+  --b: #ff5d8f;
+  --b-shade: #cf3a6a;
+}
+.deck-row {
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+.deck-chip {
+  --c: var(--primary);
+  border-color: color-mix(in srgb, var(--c) 50%, var(--border-strong));
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 50%, var(--border-strong));
+}
+.deck-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.boxes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  height: 180px;
+  margin-top: 14px;
+}
+.box-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+.box-bar {
+  width: 100%;
+  max-width: 54px;
+  border-radius: 10px 10px 4px 4px;
+  transition: height 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+  margin: 4px 0 6px;
+}
+.box-count {
+  font-weight: 900;
+}
+.box-col b {
+  font-size: 0.78rem;
+}
+.box-col small {
+  font-size: 0.68rem;
+}
+.hard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hard-count {
+  font-weight: 900;
+  color: var(--danger);
+}

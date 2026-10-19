@@ -1,9 +1,14 @@
 import { navigate } from '../lib/router'
 import { playSound } from '../lib/sound'
 import { MODULES, type ModuleDef } from '../modules/registry'
+import { dueWords, openMistakes } from '../review/data'
+import { useProgress } from '../store/progress'
 
 /** Navigation : en bas sur téléphone, sur le côté sur ordinateur (géré en CSS). */
 export default function NavBar({ active }: { active: ModuleDef }) {
+  const p = useProgress()
+  // Pastille rouge sur « Révisions » : mots à revoir + erreurs à corriger
+  const badges: Record<string, number> = { review: dueWords(p).length + openMistakes(p).length }
   return (
     <nav className="navbar" aria-label="Navigation principale">
       <div className="nav-brand">
@@ -20,7 +25,10 @@ export default function NavBar({ active }: { active: ModuleDef }) {
           }}
           aria-current={m.id === active.id ? 'page' : undefined}
         >
-          <span className="nav-icon">{m.icon}</span>
+          <span className="nav-icon">
+            {m.icon}
+            {badges[m.id] > 0 && <span className="nav-badge">{badges[m.id] > 99 ? '99+' : badges[m.id]}</span>}
+          </span>
           <span className="nav-label">{m.label}</span>
         </button>
       ))}

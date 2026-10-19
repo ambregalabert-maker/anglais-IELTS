@@ -1,6 +1,6 @@
 // L'écran d'une leçon : barre de progression, exercices, bandeau de correction, écran de fin.
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CAST } from '../characters/cast'
 import Character from '../characters/Character'
 import Mascot, { type MascotMood } from '../components/Mascot'
@@ -10,12 +10,14 @@ import { navigate } from '../lib/router'
 import { playSound } from '../lib/sound'
 import { useStudyTimer } from '../lib/useStudyTimer'
 import { toast } from '../store/events'
+import type { Difficulty } from '../store/types'
 import { addXp, awardBadge, completeLesson, getProgress, recordAnswer } from '../store/progress'
 import { buildLesson } from './engine'
 import type { Exercise } from './types'
 import { ChoiceView, JudgeView, MatchView, ReorderView, SpeakButton, TypeView, type Pending } from './views'
 
-const XP_PER_ANSWER = { normal: 2, hard: 3 }
+const XP_PER_ANSWER: Record<Difficulty, number> = { normal: 2, hard: 3, expert: 4 }
+const LEVEL_BADGE: Record<Difficulty, string> = { normal: '', hard: '💪', expert: '🧠' }
 const COMBO_STEP = 5
 const COMBO_BONUS = 3
 const MAX_RETRIES = 2
@@ -63,12 +65,59 @@ function isEnglishAnswer(ex: Exercise): boolean {
   return false
 }
 
+/** Ce qu'affiche l'écran de fin, renvoyé par celui qui lance la séance. */
+export interface SessionEnd {
+  title: string
+  message: string
+  bonus: number // XP de fin de séance
+  mastered?: boolean
+}
+
+interface SessionProps {
+  exercises: Exercise[]
+  difficulty: Difficulty
+  color: string
+  shade: string
+  exitPath: string // où revenir en quittant
+  emptyMessage?: string
+  onFinish: (accuracy: number) => SessionEnd
+}
+
+/** Une leçon du chemin. */
 export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesson: number | 'exam' }) {
   const unit = UNITS.find((u) => u.id === unitId)
   // La difficulté est lue au début de la leçon (la changer en cours de route n'a pas d'effet)
   const [difficulty] = useState(() => getProgress().settings.difficulty)
-  const initial = useMemo(() => buildLesson(unitId, lesson, difficulty), [unitId, lesson, difficulty])
+  const [exercises] = useState(() => buildLesson(unitId, lesson, difficulty))
   const lessonKey = `${unitId}-${lesson === 'exam' ? 'exam' : lesson + 1}`
+  const exam = lesson === 'exam'
+
+  return (
+    <SessionPlayer
+      exercises={unit ? exercises : []}
+      difficulty={difficulty}
+      color={unit?.color ?? '#6c4cf5'}
+      shade={unit?.shade ?? '#4d32c4'}
+      exitPath="/"
+      emptyMessage="Cette leçon n’existe pas encore."
+      onFinish={(accuracy) => {
+        const before = getProgress().lessons[lessonKey]
+        completeLesson(lessonKey, accuracy)
+        if (exam) awardBadge('first-unit')
+        const pct = Math.round(accuracy * 100)
+        return {
+          title: exam ? 'Unité validée !' : 'Leçon terminée !',
+          message: exam ? `Tu as bouclé « ${unit?.title} ». Bravo !` : pct === 100 ? 'Sans aucune erreur, impressionnant !' : 'Chaque leçon te rapproche du C2.',
+          bonus: (exam ? 20 : 10) + (accuracy === 1 ? 5 : 0),
+          mastered: !before?.mastered && !!getProgress().lessons[lessonKey]?.mastered,
+        }
+      }}
+    />
+  )
+}
+
+/** Le lecteur d'exercices, commun aux leçons et aux révisions. */
+export function SessionPlayer({ exercises: initial, difficulty, color, shade, exitPath, emptyMessage, onFinish }: SessionProps) {
 
   const [queue, setQueue] = useState<Item[]>(() => initial.map((ex) => ({ ex, retry: 0 })))
   const [pos, setPos] = useState(0)
@@ -80,7 +129,7 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
   const [xp, setXp] = useState(0)
   const [mood, setMood] = useState<MascotMood>('idle')
   const [confirmQuit, setConfirmQuit] = useState(false)
-  const [finished, setFinished] = useState<null | { accuracy: number; seconds: number; xp: number; mastered: boolean }>(null)
+  const [finished, setFinished] = useState<null | (SessionEnd & { accuracy: number; seconds: number; xp: number })>(null)
   const start = useRef(Date.now())
 
   useStudyTimer(!finished)
@@ -149,15 +198,11 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
 
   function finish() {
     const accuracy = total ? firstTry / total : 1
-    const before = getProgress().lessons[lessonKey]
-    const bonus = (lesson === 'exam' ? 20 : 10) + (accuracy === 1 ? 5 : 0)
-    addXp(bonus)
-    completeLesson(lessonKey, accuracy)
-    if (lesson === 'exam') awardBadge('first-unit')
-    const mastered = !before?.mastered && !!getProgress().lessons[lessonKey]?.mastered
+    const end = onFinish(accuracy)
+    addXp(end.bonus)
     playSound('complete')
     confetti(140)
-    setFinished({ accuracy, seconds: (Date.now() - start.current) / 1000, xp: xp + bonus, mastered })
+    setFinished({ ...end, accuracy, seconds: (Date.now() - start.current) / 1000, xp: xp + end.bonus })
   }
 
   // Entrée = Vérifier / Continuer
@@ -172,27 +217,27 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
     return () => window.removeEventListener('keydown', onKey)
   })
 
-  if (!unit || initial.length === 0) {
+  if (initial.length === 0) {
     return (
       <div className="lesson">
         <div className="lesson-empty">
           <Mascot mood="think" size={110} />
-          <p>Cette leçon n’existe pas encore.</p>
-          <button className="btn btn-primary" onClick={() => navigate('/')}>
-            Retour au chemin
+          <p>{emptyMessage ?? 'Rien à faire ici pour le moment.'}</p>
+          <button className="btn btn-primary" onClick={() => navigate(exitPath)}>
+            Retour
           </button>
         </div>
       </div>
     )
   }
 
-  if (finished) return <LessonEnd unitTitle={unit.title} exam={lesson === 'exam'} {...finished} />
+  if (finished) return <SessionEndScreen {...finished} exitPath={exitPath} />
 
   const ex = current.ex
   const answer = answerText(ex)
 
   return (
-    <div className="lesson" style={{ ['--unit' as string]: unit.color, ['--unit-shade' as string]: unit.shade }}>
+    <div className="lesson" style={{ ['--unit' as string]: color, ['--unit-shade' as string]: shade }}>
       <header className="lesson-top">
         <button className="lesson-quit" onClick={() => setConfirmQuit(true)} aria-label="Quitter la leçon">
           ✕
@@ -200,7 +245,11 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
         <div className="lesson-bar" role="progressbar" aria-valuenow={resolved} aria-valuemax={total}>
           <div className="lesson-bar-fill" style={{ width: `${(resolved / total) * 100}%` }} />
         </div>
-        {difficulty === 'hard' && <span className="hard-badge" title="Mode difficile">💪</span>}
+        {LEVEL_BADGE[difficulty] && (
+          <span className="hard-badge" title={difficulty === 'expert' ? 'Mode expert' : 'Mode difficile'}>
+            {LEVEL_BADGE[difficulty]}
+          </span>
+        )}
         {combo >= 3 && <span className="combo">🔥 {combo}</span>}
       </header>
 
@@ -270,11 +319,11 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
           <div className="modal pop-in" onClick={(e) => e.stopPropagation()}>
             <Mascot mood="sad" size={100} />
             <h3>Tu pars déjà ?</h3>
-            <p className="muted">Ta progression dans cette leçon sera perdue (l’XP déjà gagnée est gardée).</p>
+            <p className="muted">Ta progression dans cette séance sera perdue (l’XP déjà gagnée et tes réponses sont gardées).</p>
             <button className="btn btn-primary btn-block" onClick={() => setConfirmQuit(false)}>
               Continuer la leçon
             </button>
-            <button className="btn btn-secondary btn-block" onClick={() => navigate('/')}>
+            <button className="btn btn-secondary btn-block" onClick={() => navigate(exitPath)}>
               Quitter
             </button>
           </div>
@@ -284,7 +333,7 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
   )
 }
 
-function LessonEnd({ unitTitle, exam, accuracy, seconds, xp, mastered }: { unitTitle: string; exam: boolean; accuracy: number; seconds: number; xp: number; mastered: boolean }) {
+export function SessionEndScreen({ title, message, accuracy, seconds, xp, mastered, exitPath }: SessionEnd & { accuracy: number; seconds: number; xp: number; exitPath: string }) {
   const m = Math.floor(seconds / 60)
   const s = Math.round(seconds % 60)
   const pct = Math.round(accuracy * 100)
@@ -296,8 +345,8 @@ function LessonEnd({ unitTitle, exam, accuracy, seconds, xp, mastered }: { unitT
         <Mascot mood="dance" size={140} />
         <Character id={friend} mood="dance" size={110} />
       </div>
-      <h1>{exam ? 'Unité validée !' : 'Leçon terminée !'}</h1>
-      <p className="muted">{exam ? `Tu as bouclé « ${unitTitle} ». Bravo !` : pct === 100 ? 'Sans aucune erreur, impressionnant !' : 'Chaque leçon te rapproche du 7.'}</p>
+      <h1>{title}</h1>
+      <p className="muted">{message}</p>
       {mastered && <p className="mastered-msg">👑 Leçon maîtrisée !</p>}
       <div className="end-stats">
         <div className="end-stat xp">
@@ -315,7 +364,7 @@ function LessonEnd({ unitTitle, exam, accuracy, seconds, xp, mastered }: { unitT
           </b>
         </div>
       </div>
-      <button className="btn btn-primary btn-block end-btn" onClick={() => navigate('/')}>
+      <button className="btn btn-primary btn-block end-btn" onClick={() => navigate(exitPath)}>
         Continuer
       </button>
     </div>

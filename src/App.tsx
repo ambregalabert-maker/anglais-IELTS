@@ -3,10 +3,23 @@ import Celebrations from './components/Celebrations'
 import NavBar from './components/NavBar'
 import TopBar from './components/TopBar'
 import LessonPlayer from './lesson/LessonPlayer'
+import Flashcards from './review/Flashcards'
+import ReviewSession, { type ReviewMode } from './review/ReviewSession'
+import type { Deck } from './review/data'
 import { useRoute } from './lib/router'
 import { findModule } from './modules/registry'
 import { useApplySettings } from './store/hooks'
 import { checkStreakOnOpen } from './store/progress'
+
+function fullScreenPage(route: string) {
+  const lesson = route.match(/^\/lesson\/([\w-]+)\/(\d+|exam)$/)
+  if (lesson) return <LessonPlayer unitId={lesson[1]} lesson={lesson[2] === 'exam' ? 'exam' : Number(lesson[2])} />
+  const review = route.match(/^\/review\/session\/(due|mistakes|weak)$/)
+  if (review) return <ReviewSession mode={review[1] as ReviewMode} />
+  const cards = route.match(/^\/review\/cards\/(.+)$/)
+  if (cards) return <Flashcards deck={cards[1] as Deck} />
+  return null
+}
 
 export default function App() {
   const route = useRoute()
@@ -22,13 +35,12 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [mod.id])
 
-  // Pendant une leçon : plein écran, sans navigation (comme dans les applis de langues)
-  const lessonMatch = route.match(/^\/lesson\/([\w-]+)\/(\d+|exam)$/)
-  if (lessonMatch) {
-    const [, unitId, n] = lessonMatch
+  // Pendant une leçon ou une révision : plein écran, sans navigation (comme dans les applis de langues)
+  const fullScreen = fullScreenPage(route)
+  if (fullScreen) {
     return (
       <>
-        <LessonPlayer key={route} unitId={unitId} lesson={n === 'exam' ? 'exam' : Number(n)} />
+        <div key={route}>{fullScreen}</div>
         <Celebrations />
       </>
     )

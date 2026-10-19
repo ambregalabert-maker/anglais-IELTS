@@ -581,3 +581,95 @@
   align-items: flex-end;
   gap: 4px;
 }
+
+/* ===== Flashcards ===== */
+.deck-count {
+  font-weight: 900;
+  color: var(--text-soft);
+}
+.flash-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.flash-deck {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.flashcard {
+  position: relative;
+  width: min(100%, 420px);
+  min-height: 380px;
+  perspective: 1200px;
+  cursor: pointer;
+}
+.flash-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px;
+  text-align: center;
+  border-radius: 24px;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  box-shadow: 0 6px 0 var(--border-strong);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.55s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.flash-front h2 {
+  font-size: 2rem;
+}
+.flash-back {
+  transform: rotateY(180deg);
+  border-color: color-mix(in srgb, #ff5d8f 50%, var(--border-strong));
+  box-shadow: 0 6px 0 color-mix(in srgb, #ff5d8f 50%, var(--border-strong));
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+.flashcard.flipped .flash-front {
+  transform: rotateY(-180deg);
+}
+.flashcard.flipped .flash-back {
+  transform: rotateY(0deg);
+}
+.flash-tap {
+  margin-top: 10px;
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.flash-back h2 {
+  font-size: 1.6rem;
+}
+.flash-fr {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ff5d8f;
+}
+.flash-def {
+  font-weight: 700;
+}
+.flash-ex {
+  font-style: italic;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+.flash-col {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.flash-note {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+.flash-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}

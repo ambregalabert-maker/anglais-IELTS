@@ -3,7 +3,7 @@
 // les anciennes sauvegardes sont complétées automatiquement au chargement.
 
 export type ThemePref = 'system' | 'light' | 'dark'
-export type Difficulty = 'normal' | 'hard'
+export type Difficulty = 'normal' | 'hard' | 'expert'
 
 export interface Settings {
   examDate: string // AAAA-MM-JJ
@@ -65,5 +65,6 @@ export interface Progress {
   lessons: Record<string, LessonProgress>
   words: Record<string, WordStat>
   mistakes: Record<string, MistakeStat>
+  reviewSessions: number
   settings: Settings
 }

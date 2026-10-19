@@ -24,6 +24,7 @@ export const BADGES: BadgeDef[] = [
   { id: 'level-5', title: 'Niveau 5', description: 'Atteindre le niveau 5', icon: '⭐', auto: (p) => p.xp >= 600 },
   { id: 'level-10', title: 'Niveau 10', description: 'Atteindre le niveau 10', icon: '🌟', auto: (p) => p.xp >= 1620 },
   { id: 'words-100', title: '100 mots', description: 'Maîtriser 100 mots', icon: '📚', auto: (p) => Object.values(p.words).filter((w) => w.box >= 4).length >= 100 },
+  { id: 'reviews-10', title: 'Mémoire d’éléphant', description: 'Terminer 10 séances de révision', icon: '🐘', auto: (p) => p.reviewSessions >= 10 },
   { id: 'perfect', title: 'Sans faute', description: 'Finir une leçon sans aucune erreur', icon: '💎' },
   { id: 'essay-250', title: 'Plume d’or', description: 'Écrire un premier essai de 250 mots', icon: '✍️' },
   { id: 'tryhard-60', title: 'Tryhard', description: 'Une séance Tryhard d’une heure', icon: '💪' },

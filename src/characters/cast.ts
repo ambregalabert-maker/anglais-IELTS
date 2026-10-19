@@ -18,7 +18,7 @@ export const CAST: CharacterDef[] = [
   {
     id: 'pepin',
     name: 'Pépin',
-    role: 'La petite graine qui pousse avec toi jusqu’au 7.',
+    role: 'La petite graine qui pousse avec toi jusqu’au C2.',
     color: '#ff9a4d',
     voice: { usePreferred: true },
     catchphrase: 'Hi! I am Pepin. Shall we learn some new words today?',

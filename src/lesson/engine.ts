@@ -1,7 +1,7 @@
 // Fabrique les exercices d'une leçon à partir du contenu (mots + exercices écrits à la main).
 // Chaque leçon est un peu différente à chaque fois : les exercices et les options sont tirés au hasard.
 
-import { CONTENT, wordId, type WordRef } from '../data/vocab'
+import { CONTENT, WORD_BY_ID, wordId, type WordRef } from '../data/vocab'
 import type { Cloze, Judge, Sentence } from '../data/vocab/types'
 import { escapeRegExp, normalizeLoose, sample, shuffle } from '../lib/text'
 import type { Difficulty } from '../store/types'
@@ -111,7 +111,7 @@ function exampleBank(w: WordRef, pool: WordRef[]): ChoiceExercise | null {
   }
 }
 
-function exampleType(w: WordRef, hard: boolean): TypeExercise | null {
+function exampleType(w: WordRef, level: Difficulty): TypeExercise | null {
   const found = findInExample(w)
   if (!found) return null
   return {
@@ -120,21 +120,22 @@ function exampleType(w: WordRef, hard: boolean): TypeExercise | null {
     wordIds: [w.id],
     instruction: 'Écris le mot qui manque',
     sentence: found.sentence,
-    hint: hard ? w.fr : `${w.fr} · commence par « ${found.form.slice(0, 1)} »`,
+    // Expert : indice uniquement en anglais (la définition), comme un vrai locuteur
+    hint: level === 'expert' ? w.def : level === 'hard' ? w.fr : `${w.fr} · commence par « ${found.form.slice(0, 1)} »`,
     accepted: [found.form],
     answer: found.form,
     explanation: wordExplanation(w),
   }
 }
 
-function translateType(w: WordRef, hard: boolean): TypeExercise {
+function translateType(w: WordRef, level: Difficulty): TypeExercise {
   return {
     kind: 'type',
     key: `w:${w.id}:write`,
     wordIds: [w.id],
     instruction: 'Écris en anglais',
     prompt: w.fr,
-    hint: hard ? w.pos : `${w.pos} · commence par « ${w.word.slice(0, 1)} »`,
+    hint: level === 'expert' ? undefined : level === 'hard' ? w.pos : `${w.pos} · commence par « ${w.word.slice(0, 1)} »`,
     accepted: [w.word, ...(w.alt ?? [])],
     answer: w.word,
     explanation: wordExplanation(w),
@@ -257,9 +258,16 @@ const PLANS: Record<Difficulty, { lesson: Slot[]; exam: Slot[] }> = {
     lesson: ['bank', 'write', 'cloze', 'type', 'judge', 'reorder', 'write', 'cloze', 'type', 'en', 'judge', 'write', 'reorder'],
     exam: ['write', 'type', 'cloze', 'judge', 'reorder', 'write', 'bank', 'type', 'cloze', 'write', 'judge', 'reorder', 'type', 'en', 'cloze', 'write', 'def'],
   },
+  // Mode expert (objectif C2) : presque tout à taper, indices en anglais seulement, plus de pièges
+  expert: {
+    lesson: ['type', 'write', 'cloze', 'judge', 'reorder', 'type', 'write', 'cloze', 'judge', 'write', 'type', 'reorder', 'write'],
+    exam: ['write', 'type', 'cloze', 'judge', 'reorder', 'write', 'type', 'cloze', 'judge', 'write', 'type', 'reorder', 'write', 'cloze', 'type', 'judge', 'write'],
+  },
 }
 
-function build(p: Pools, plan: Slot[], size: number, hard: boolean): Exercise[] {
+const DECOYS: Record<Difficulty, number> = { normal: 2, hard: 4, expert: 5 }
+
+function build(p: Pools, plan: Slot[], size: number, level: Difficulty): Exercise[] {
   const wordQueue = shuffle(p.words)
   let wi = 0
   const nextWord = () => wordQueue[wi++ % wordQueue.length]
@@ -282,9 +290,9 @@ function build(p: Pools, plan: Slot[], size: number, hard: boolean): Exercise[] 
       case 'bank':
         return exampleBank(nextWord(), p.pool)
       case 'type':
-        return exampleType(nextWord(), hard)
+        return exampleType(nextWord(), level)
       case 'write':
-        return translateType(nextWord(), hard)
+        return translateType(nextWord(), level)
       case 'cloze': {
         const c = clozes.shift()
         return c ? cloze(c.item, c.key, relatedWords(c.item.s + ' ' + c.item.a, p.pool)) : null
@@ -295,7 +303,7 @@ function build(p: Pools, plan: Slot[], size: number, hard: boolean): Exercise[] 
       }
       case 'reorder': {
         const s = sents.shift()
-        return s ? reorder(s.item, p.allSentences.filter((o) => o !== s.item), s.key + ':order', hard ? 4 : 2) : null
+        return s ? reorder(s.item, p.allSentences.filter((o) => o !== s.item), s.key + ':order', DECOYS[level]) : null
       }
       case 'sentFr': {
         const s = sents.shift()
@@ -324,7 +332,78 @@ export function buildLesson(unitId: string, lesson: number | 'exam', difficulty:
   const unit = CONTENT[unitId]
   if (!unit) return []
   const plan = PLANS[difficulty]
-  const hard = difficulty === 'hard'
-  if (lesson === 'exam') return build(pools(unitId, unit.lessons.map((_, i) => i)), plan.exam, EXAM_SIZE, hard)
-  return build(pools(unitId, [lesson]), plan.lesson, LESSON_SIZE, hard)
+  if (lesson === 'exam') return build(pools(unitId, unit.lessons.map((_, i) => i)), plan.exam, EXAM_SIZE, difficulty)
+  return build(pools(unitId, [lesson]), plan.lesson, LESSON_SIZE, difficulty)
+}
+
+// ---------- Révisions ----------
+
+const allPools: Record<string, Pools> = {}
+function unitPools(unitId: string): Pools | null {
+  const unit = CONTENT[unitId]
+  if (!unit) return null
+  allPools[unitId] ??= pools(unitId, unit.lessons.map((_, i) => i))
+  return allPools[unitId]
+}
+
+type WordSlot = 'def' | 'fr' | 'en' | 'bank' | 'type' | 'write'
+
+function wordExercise(w: WordRef, slot: WordSlot, level: Difficulty): Exercise | null {
+  const pool = unitPools(w.unitId)?.pool ?? [w]
+  switch (slot) {
+    case 'def':
+      return defToWord(w, pool)
+    case 'fr':
+      return wordToFr(w, pool)
+    case 'en':
+      return frToWord(w, pool)
+    case 'bank':
+      return exampleBank(w, pool)
+    case 'type':
+      return exampleType(w, level)
+    case 'write':
+      return translateType(w, level)
+  }
+}
+
+/**
+ * Exercice de révision pour un mot : plus le mot est maîtrisé (boîte haute),
+ * plus on demande de le produire soi-même plutôt que de le reconnaître.
+ */
+export function reviewExercise(w: WordRef, box: number, level: Difficulty): Exercise {
+  const production = level === 'expert' ? 0.9 : level === 'hard' ? 0.7 : Math.min(0.8, 0.2 + box * 0.15)
+  const order: WordSlot[] =
+    Math.random() < production ? shuffle<WordSlot>(['write', 'type']) : shuffle<WordSlot>(['fr', 'def', 'en', 'bank'])
+  for (const slot of [...order, 'fr' as WordSlot]) {
+    const ex = wordExercise(w, slot, level)
+    if (ex) return { ...ex, key: `w:${w.id}:${slot}` }
+  }
+  return wordToFr(w, [w])
+}
+
+/** Recrée un exercice à partir de sa clé (séance « Mes erreurs »). */
+export function exerciseFromKey(key: string, level: Difficulty): Exercise | null {
+  if (key.startsWith('w:')) {
+    const [, id, slot] = key.match(/^w:(.+):([a-z]+)$/) ?? []
+    const w = WORD_BY_ID[id]
+    if (!w) return null
+    const s = (['def', 'fr', 'en', 'bank', 'type', 'write'].includes(slot) ? slot : 'fr') as WordSlot
+    return wordExercise(w, s, level) ?? wordToFr(w, unitPools(w.unitId)?.pool ?? [w])
+  }
+  const [unitId, li, kind, i, variant] = key.split(':')
+  const lesson = CONTENT[unitId]?.lessons[Number(li)]
+  const p = unitPools(unitId)
+  if (!lesson || !p) return null
+  const idx = Number(i)
+  if (kind === 'cloze' && lesson.cloze?.[idx]) {
+    const c = lesson.cloze[idx]
+    return cloze(c, key, relatedWords(c.s + ' ' + c.a, p.pool))
+  }
+  if (kind === 'judge' && lesson.judge?.[idx]) return judge(lesson.judge[idx], key)
+  if (kind === 'sent' && lesson.sentences?.[idx]) {
+    const s = lesson.sentences[idx]
+    const others = p.allSentences.filter((o) => o !== s)
+    return variant === 'fr' ? sentenceToFr(s, others, key) : reorder(s, others, key, DECOYS[level])
+  }
+  return null
 }
