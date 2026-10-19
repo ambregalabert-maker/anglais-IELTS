@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { dayKey, daysBetween } from '../lib/dates'
-import { setSoundEnabled } from '../lib/sound'
+import { configureVoice, setSoundEnabled } from '../lib/sound'
 import { useProgress } from './progress'
 import type { DayLog } from './types'
 
@@ -22,11 +22,12 @@ export function useDaysToExam() {
 
 /** Applique le thème (clair / sombre) et le réglage du son. */
 export function useApplySettings() {
-  const { theme, sound } = useProgress().settings
+  const { theme, sound, voice, voiceURI, voiceRate } = useProgress().settings
   useEffect(() => {
     const root = document.documentElement
     if (theme === 'system') root.removeAttribute('data-theme')
     else root.setAttribute('data-theme', theme)
   }, [theme])
   useEffect(() => setSoundEnabled(sound), [sound])
+  useEffect(() => configureVoice({ enabled: voice, voiceURI, rate: voiceRate }), [voice, voiceURI, voiceRate])
 }

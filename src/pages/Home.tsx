@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import { IconCheck, IconCrown, IconPath, IconStar, IconTrophy } from '../components/Icons'
-import Mascot from '../components/Mascot'
+import Character from '../characters/Character'
+import { CAST } from '../characters/cast'
 import ModuleHeader from '../components/ModuleHeader'
 import ProgressRing from '../components/ProgressRing'
 import { UNITS, type UnitMeta } from '../data/units'
@@ -10,7 +11,7 @@ import { navigate } from '../lib/router'
 import { playSound } from '../lib/sound'
 import { toast } from '../store/events'
 import { useDaysToExam, useToday } from '../store/hooks'
-import { useProgress } from '../store/progress'
+import { updateSettings, useProgress } from '../store/progress'
 import type { Progress } from '../store/types'
 
 // Toutes les leçons sont ouvertes : « next » est simplement la leçon conseillée (la première pas encore faite).
@@ -87,6 +88,18 @@ export default function Home() {
 
       <ModuleHeader title="Chemin de vocabulaire" subtitle="Une leçon à la fois, de B1 vers le 7" color="#6c4cf5" icon={<IconPath size={36} />} />
 
+      <div className="difficulty-row">
+        <span>Difficulté</span>
+        <div className="segmented">
+          <button className={p.settings.difficulty === 'normal' ? 'on' : ''} onClick={() => updateSettings({ difficulty: 'normal' })}>
+            Normale
+          </button>
+          <button className={p.settings.difficulty === 'hard' ? 'on' : ''} onClick={() => updateSettings({ difficulty: 'hard' })}>
+            Difficile 💪
+          </button>
+        </div>
+      </div>
+
       <div className="path">
         {UNITS.map((unit, u) => {
           const nodes = NODES.filter((n) => n.unit.id === unit.id)
@@ -131,8 +144,8 @@ export default function Home() {
                       </button>
                       {state === 'next' && (
                         <div className={`path-mascot ${offset > 0 ? 'left' : 'right'}`}>
-                          <div className="bubble">C’est parti !</div>
-                          <Mascot mood="wave" size={78} />
+                          <div className="bubble">{CAST[u % CAST.length].bubbles[i % 3]}</div>
+                          <Character id={CAST[u % CAST.length].id} mood="wave" size={78} />
                         </div>
                       )}
                     </div>

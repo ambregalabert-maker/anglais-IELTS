@@ -3,11 +3,16 @@
 // les anciennes sauvegardes sont complétées automatiquement au chargement.
 
 export type ThemePref = 'system' | 'light' | 'dark'
+export type Difficulty = 'normal' | 'hard'
 
 export interface Settings {
   examDate: string // AAAA-MM-JJ
   dailyGoalMinutes: number
-  sound: boolean
+  sound: boolean // petits effets sonores (juste, faux, badge…)
+  voice: boolean // prononciation des mots et des phrases
+  voiceURI: string | null // voix choisie (null = la meilleure trouvée automatiquement)
+  voiceRate: number // vitesse de la voix
+  difficulty: Difficulty
   theme: ThemePref
 }
 

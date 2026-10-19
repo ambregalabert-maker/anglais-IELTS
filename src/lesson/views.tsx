@@ -6,6 +6,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { IconSpeaker } from '../components/Icons'
 import { normalize, matchTyped, shuffle } from '../lib/text'
 import { playSound, speak } from '../lib/sound'
+import { characterFor } from '../characters/cast'
+import SpeechBubble from '../characters/SpeechBubble'
+import { useProgress } from '../store/progress'
 import type { ChoiceExercise, JudgeExercise, MatchExercise, ReorderExercise, TypeExercise } from './types'
 
 export interface Pending {
@@ -21,6 +24,9 @@ interface ViewProps<T> {
 }
 
 export function SpeakButton({ text, small = false }: { text: string; small?: boolean }) {
+  // Voix coupée dans les réglages : pas de bouton du tout
+  const voiceOn = useProgress().settings.voice
+  if (!voiceOn) return null
   return (
     <button
       type="button"
@@ -76,12 +82,14 @@ export function ChoiceView({ ex, locked, onPending }: ViewProps<ChoiceExercise>)
   return (
     <div className="ex">
       {ex.tag && <span className="ex-tag">{ex.tag}</span>}
-      {ex.prompt && (
-        <div className="ex-prompt">
-          {english && <SpeakButton text={ex.prompt!} />}
-          <span>{ex.prompt}</span>
-        </div>
-      )}
+      {ex.prompt &&
+        (english ? (
+          <SpeechBubble character={characterFor(ex.key)} text={ex.prompt} />
+        ) : (
+          <div className="ex-prompt">
+            <span>{ex.prompt}</span>
+          </div>
+        ))}
       {ex.sentence && (
         <Sentence text={ex.sentence} fill={picked ?? undefined} state={locked ? (picked === ex.answer ? 'ok' : 'ko') : undefined} />
       )}
@@ -153,10 +161,7 @@ export function JudgeView({ ex, locked, onPending }: ViewProps<JudgeExercise>) {
   }
   return (
     <div className="ex">
-      <div className="ex-prompt quote">
-        <SpeakButton text={ex.sentence} />
-        <span>« {ex.sentence} »</span>
-      </div>
+      <SpeechBubble character={characterFor(ex.key)} text={ex.sentence} quote />
       <div className="options two">
         {[true, false].map((v) => {
           const state = locked ? (v === ex.ok ? 'right' : v === picked ? 'wrong' : 'dim') : v === picked ? 'picked' : ''

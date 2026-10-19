@@ -24,7 +24,7 @@ export const DEFAULT_PROGRESS: Progress = {
   lessons: {},
   words: {},
   mistakes: {},
-  settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, theme: 'system' },
+  settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, difficulty: 'normal', theme: 'system' },
 }
 
 const EMPTY_DAY: DayLog = { xp: 0, seconds: 0, exercises: 0, correct: 0 }

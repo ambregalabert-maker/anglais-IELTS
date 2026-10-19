@@ -1,14 +1,16 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IconUser } from '../components/Icons'
-import Mascot, { type MascotMood } from '../components/Mascot'
+import { CAST } from '../characters/cast'
+import Character from '../characters/Character'
+import type { MascotMood } from '../components/Mascot'
 import ModuleHeader from '../components/ModuleHeader'
 import { BADGES } from '../data/badges'
 import { formatDuration, formatLongDate } from '../lib/dates'
 import { levelInfo } from '../lib/levels'
-import { playSound } from '../lib/sound'
+import { englishVoices, onVoicesChanged, speak, voiceScore } from '../lib/sound'
 import { toast } from '../store/events'
-import { addXp, exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../store/progress'
-import type { ThemePref } from '../store/types'
+import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../store/progress'
+import type { Difficulty, ThemePref } from '../store/types'
 
 const GOALS = [10, 15, 20, 30, 45, 60]
 const THEMES: { id: ThemePref; label: string }[] = [
@@ -16,6 +18,16 @@ const THEMES: { id: ThemePref; label: string }[] = [
   { id: 'light', label: 'Clair' },
   { id: 'dark', label: 'Sombre' },
 ]
+const DIFFICULTIES: { id: Difficulty; label: string }[] = [
+  { id: 'normal', label: 'Normale' },
+  { id: 'hard', label: 'Difficile 💪' },
+]
+const RATES = [
+  { value: 0.75, label: 'Lente' },
+  { value: 0.9, label: 'Normale' },
+  { value: 1.05, label: 'Rapide' },
+]
+
 const MOODS: { id: MascotMood; label: string }[] = [
   { id: 'idle', label: 'Normal' },
   { id: 'happy', label: 'Contente' },
@@ -30,7 +42,8 @@ export default function Profile() {
   const p = useProgress()
   const lvl = levelInfo(p.xp)
   const fileRef = useRef<HTMLInputElement>(null)
-  const [mood, setMood] = useState<MascotMood>('happy')
+  const [mood, setMood] = useState<MascotMood>('idle')
+  const [talkingId, setTalkingId] = useState<string | null>(null)
 
   const days = Object.values(p.days)
   const totalSeconds = days.reduce((s, d) => s + d.seconds, 0)
@@ -133,13 +146,34 @@ export default function Profile() {
             ))}
           </div>
         </div>
+        <div className="setting">
+          <span>
+            <b>Difficulté des leçons</b>
+            <small>Difficile = surtout des réponses à taper, +50 % d’XP</small>
+          </span>
+          <div className="segmented">
+            {DIFFICULTIES.map((d) => (
+              <button key={d.id} className={p.settings.difficulty === d.id ? 'on' : ''} onClick={() => updateSettings({ difficulty: d.id })}>
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <label className="setting">
           <span>
-            <b>Sons</b>
+            <b>Effets sonores</b>
             <small>Bonne réponse, erreur, badges…</small>
           </span>
           <input type="checkbox" className="switch" checked={p.settings.sound} onChange={(e) => updateSettings({ sound: e.target.checked })} />
         </label>
+        <label className="setting">
+          <span>
+            <b>Voix</b>
+            <small>Prononciation des mots et des phrases</small>
+          </span>
+          <input type="checkbox" className="switch" checked={p.settings.voice} onChange={(e) => updateSettings({ voice: e.target.checked })} />
+        </label>
+        {p.settings.voice && <VoiceSettings voiceURI={p.settings.voiceURI} rate={p.settings.voiceRate} />}
       </section>
 
       <h2 className="section-title">Sauvegarde</h2>
@@ -170,12 +204,8 @@ export default function Profile() {
         </div>
       </section>
 
-      <h2 className="section-title">Aperçu de l’étape 1</h2>
-      <section className="card preview">
-        <p className="muted">Zone de test, retirée à la fin : les humeurs de Pépin et les sons.</p>
-        <div className="preview-mascot">
-          <Mascot mood={mood} size={120} />
-        </div>
+      <h2 className="section-title">Ta bande</h2>
+      <section className="card cast">
         <div className="chip-row">
           {MOODS.map((m) => (
             <button key={m.id} className={`chip ${mood === m.id ? 'on' : ''}`} onClick={() => setMood(m.id)}>
@@ -183,13 +213,27 @@ export default function Profile() {
             </button>
           ))}
         </div>
-        <div className="chip-row">
-          <button className="chip" onClick={() => playSound('correct')}>✅ Juste</button>
-          <button className="chip" onClick={() => playSound('wrong')}>❌ Faux</button>
-          <button className="chip" onClick={() => playSound('complete')}>🎉 Fin de leçon</button>
-          <button className="chip" onClick={() => playSound('badge')}>🏅 Badge</button>
-          <button className="chip" onClick={() => addXp(25)}>⚡ +25 XP (test)</button>
+        <div className="cast-grid">
+          {CAST.map((c) => (
+            <div key={c.id} className="cast-card" style={{ ['--c' as string]: c.color }}>
+              <Character id={c.id} mood={talkingId === c.id ? 'idle' : mood} talking={talkingId === c.id} size={96} />
+              <b>{c.name}</b>
+              <small>{c.role}</small>
+              <button
+                className="chip"
+                onClick={() =>
+                  speak(c.catchphrase, { force: true, profile: c.voice, onStart: () => setTalkingId(c.id), onEnd: () => setTalkingId(null) })
+                }
+              >
+                ▶ Sa voix
+              </button>
+            </div>
+          ))}
         </div>
+        <p className="muted small-note">
+          Les voix dépendent de ton appareil : si deux personnages se ressemblent, c’est que ton téléphone n’a qu’une ou deux voix
+          anglaises installées (voir l’astuce dans « Voix » plus haut).
+        </p>
       </section>
     </div>
   )
@@ -201,6 +245,55 @@ function Stat({ icon, value, label }: { icon: string; value: string | number; la
       <span className="stat-icon">{icon}</span>
       <b>{value}</b>
       <small>{label}</small>
+    </div>
+  )
+}
+
+/** Choix de la voix : la liste dépend de l'appareil (iPhone, Android, ordinateur…). */
+function VoiceSettings({ voiceURI, rate }: { voiceURI: string | null; rate: number }) {
+  const [voices, setVoices] = useState(englishVoices)
+  useEffect(() => onVoicesChanged(() => setVoices(englishVoices())), [])
+  const best = voices[0]
+  const test = (uri?: string) => speak('Hello! I am preparing for the IELTS exam.', { force: true, voiceURI: uri })
+
+  return (
+    <div className="voice-settings">
+      <div className="setting">
+        <span>
+          <b>Voix anglaise</b>
+          <small>{voices.length ? `${voices.length} voix disponibles sur cet appareil` : 'Aucune voix anglaise trouvée sur cet appareil'}</small>
+        </span>
+        <div className="voice-pick">
+          <select value={voiceURI ?? ''} onChange={(e) => updateSettings({ voiceURI: e.target.value || null })}>
+            <option value="">Automatique{best ? ` (${best.name})` : ''}</option>
+            {voices.map((v) => (
+              <option key={v.voiceURI} value={v.voiceURI}>
+                {voiceScore(v) >= 80 ? '★ ' : ''}
+                {v.name} · {v.lang}
+              </option>
+            ))}
+          </select>
+          <button className="chip" onClick={() => test(voiceURI ?? undefined)}>
+            ▶ Tester
+          </button>
+        </div>
+      </div>
+      <div className="setting">
+        <span>
+          <b>Vitesse</b>
+        </span>
+        <div className="segmented">
+          {RATES.map((r) => (
+            <button key={r.value} className={rate === r.value ? 'on' : ''} onClick={() => updateSettings({ voiceRate: r.value })}>
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="muted small-note">
+        Astuce iPhone : Réglages → Accessibilité → Contenu énoncé → Voix → Anglais (Royaume-Uni) → télécharge une voix « améliorée » ou
+        « premium » (ex. Serena, Daniel), puis choisis-la ici (★ = voix de bonne qualité).
+      </p>
     </div>
   )
 }

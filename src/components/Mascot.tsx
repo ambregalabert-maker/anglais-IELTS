@@ -7,9 +7,10 @@ interface Props {
   mood?: MascotMood
   size?: number
   className?: string
+  talking?: boolean // la bouche bouge pendant que la voix parle
 }
 
-export default function Mascot({ mood = 'idle', size = 120, className = '' }: Props) {
+export default function Mascot({ mood = 'idle', size = 120, className = '', talking = false }: Props) {
   const eyesClosed = mood === 'happy' || mood === 'dance' || mood === 'sleep'
   const armsUp = mood === 'dance'
   return (
@@ -51,8 +52,8 @@ export default function Mascot({ mood = 'idle', size = 120, className = '' }: Pr
           {/* sourcils (déçu / réfléchit) */}
           {mood === 'sad' && (
             <g stroke="#2b2140" strokeWidth="3" strokeLinecap="round">
-              <path d="M37 52 L50 55" />
-              <path d="M83 52 L70 55" />
+              <path d="M37 55 L50 50" />
+              <path d="M83 55 L70 50" />
             </g>
           )}
           {mood === 'think' && (
@@ -92,7 +93,12 @@ export default function Mascot({ mood = 'idle', size = 120, className = '' }: Pr
           <ellipse cx="34" cy="80" rx="6" ry="3.5" fill="#ff6f8e" opacity="0.45" />
           <ellipse cx="86" cy="80" rx="6" ry="3.5" fill="#ff6f8e" opacity="0.45" />
           {/* bouche */}
-          {mood === 'happy' || mood === 'dance' ? (
+          {talking ? (
+            <g className="m-talk">
+              <path className="m-mouth-a" d="M48 81 Q60 97 72 81 Z" fill="#2b2140" stroke="#2b2140" strokeWidth="2" strokeLinejoin="round" />
+              <ellipse className="m-mouth-b" cx="60" cy="85" rx="6" ry="3.5" fill="#2b2140" />
+            </g>
+          ) : mood === 'happy' || mood === 'dance' ? (
             <path d="M48 81 Q60 97 72 81 Z" fill="#2b2140" stroke="#2b2140" strokeWidth="2" strokeLinejoin="round" />
           ) : mood === 'sad' ? (
             <path d="M51 88 Q60 83 69 88" stroke="#2b2140" strokeWidth="3.5" strokeLinecap="round" fill="none" />

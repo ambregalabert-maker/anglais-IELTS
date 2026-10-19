@@ -34,7 +34,7 @@ for (const unit of Object.values(CONTENT)) {
       if (!j.ok && !j.fix) warn(`${unit.unitId}/${li} judge faux sans correction : ${j.s}`)
     })
     for (let k = 0; k < 30; k++) {
-      const ex = buildLesson(unit.unitId, li)
+      const ex = buildLesson(unit.unitId, li, k % 2 ? 'hard' : 'normal')
       if (ex.length < 10) warn(`${unit.unitId}/${li} : seulement ${ex.length} exercices`)
       for (const e of ex) {
         if (e.kind === 'choice' && new Set(e.options).size !== e.options.length) warn(`${e.key} : options en double ${e.options.join(' | ')}`)
@@ -42,8 +42,10 @@ for (const unit of Object.values(CONTENT)) {
       }
     }
   })
-  const exam = buildLesson(unit.unitId, 'exam')
-  if (exam.length < 14) warn(`${unit.unitId}/exam : seulement ${exam.length} exercices`)
+  for (const d of ['normal', 'hard'] as const) {
+    const exam = buildLesson(unit.unitId, 'exam', d)
+    if (exam.length < 14) warn(`${unit.unitId}/exam (${d}) : seulement ${exam.length} exercices`)
+  }
 }
 
 console.log(`\n${total} mots dans ${Object.keys(CONTENT).length} unités. ${problems} problème(s).`)

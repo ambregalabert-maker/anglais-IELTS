@@ -214,3 +214,132 @@
     transform: translateY(-8px);
   }
 }
+
+/* ----- Personnages : animations communes ----- */
+
+/* Bouche qui parle : deux formes qui alternent */
+.mascot .m-talk .m-mouth-a {
+  animation: m-talk-a 0.28s steps(1) infinite;
+}
+.mascot .m-talk .m-mouth-b {
+  animation: m-talk-b 0.28s steps(1) infinite;
+}
+@keyframes m-talk-a {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes m-talk-b {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.mascot.is-talking .m-all {
+  animation: m-chatter 0.56s ease-in-out infinite;
+}
+@keyframes m-chatter {
+  50% {
+    transform: translateY(-3px) scale(1.02, 0.98);
+  }
+}
+
+/* Voyants du robot */
+.mascot .m-blink {
+  animation: m-led 1.4s steps(1) infinite;
+}
+@keyframes m-led {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Le nuage flotte */
+.char--nimbus .m-float {
+  animation: m-float 3s ease-in-out infinite;
+  transform-box: view-box;
+}
+@keyframes m-float {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Vapeur de la théière */
+.mascot .m-steam path {
+  animation: m-steam 2.2s ease-in-out infinite;
+}
+.mascot .m-steam path:nth-child(2) {
+  animation-delay: 0.7s;
+}
+@keyframes m-steam {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Queue de la chatte */
+.char--mia .m-tail {
+  transform-box: view-box;
+  transform-origin: 88px 110px;
+  animation: m-tail 1.6s ease-in-out infinite;
+}
+@keyframes m-tail {
+  50% {
+    transform: rotate(-10deg);
+  }
+}
+
+/* Pluie du nuage triste */
+.mascot .m-rain path {
+  animation: m-rain 1s linear infinite;
+}
+.mascot .m-rain path:nth-child(2) {
+  animation-delay: 0.33s;
+}
+.mascot .m-rain path:nth-child(3) {
+  animation-delay: 0.66s;
+}
+@keyframes m-rain {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Arc-en-ciel qui apparaît */
+.mascot .m-rainbow {
+  animation: popIn 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+  transform-box: view-box;
+  transform-origin: 60px 60px;
+}
+
+/* Le robot danse de façon plus mécanique */
+.char--bolt.mascot--dance .m-all {
+  animation: m-robot 0.6s steps(2) infinite;
+}
+@keyframes m-robot {
+  0% {
+    transform: rotate(-6deg);
+  }
+  100% {
+    transform: rotate(6deg);
+  }
+}

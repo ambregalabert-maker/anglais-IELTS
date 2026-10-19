@@ -1,6 +1,8 @@
 // L'écran d'une leçon : barre de progression, exercices, bandeau de correction, écran de fin.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { CAST } from '../characters/cast'
+import Character from '../characters/Character'
 import Mascot, { type MascotMood } from '../components/Mascot'
 import { UNITS } from '../data/units'
 import { confetti } from '../lib/confetti'
@@ -13,7 +15,7 @@ import { buildLesson } from './engine'
 import type { Exercise } from './types'
 import { ChoiceView, JudgeView, MatchView, ReorderView, SpeakButton, TypeView, type Pending } from './views'
 
-const XP_PER_ANSWER = 2
+const XP_PER_ANSWER = { normal: 2, hard: 3 }
 const COMBO_STEP = 5
 const COMBO_BONUS = 3
 const MAX_RETRIES = 2
@@ -30,6 +32,10 @@ interface Feedback {
 interface Item {
   ex: Exercise
   retry: number
+}
+
+function hasSpeaker(ex: Exercise): boolean {
+  return ex.kind === 'judge' || (ex.kind === 'choice' && !!ex.speakPrompt)
 }
 
 function pick<T>(arr: T[]): T {
@@ -59,7 +65,9 @@ function isEnglishAnswer(ex: Exercise): boolean {
 
 export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesson: number | 'exam' }) {
   const unit = UNITS.find((u) => u.id === unitId)
-  const initial = useMemo(() => buildLesson(unitId, lesson), [unitId, lesson])
+  // La difficulté est lue au début de la leçon (la changer en cours de route n'a pas d'effet)
+  const [difficulty] = useState(() => getProgress().settings.difficulty)
+  const initial = useMemo(() => buildLesson(unitId, lesson, difficulty), [unitId, lesson, difficulty])
   const lessonKey = `${unitId}-${lesson === 'exam' ? 'exam' : lesson + 1}`
 
   const [queue, setQueue] = useState<Item[]>(() => initial.map((ex) => ({ ex, retry: 0 })))
@@ -88,7 +96,7 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
   function settle(correct: boolean, opts: { typo?: boolean; wordIds?: string[]; perWord?: { id: string; correct: boolean }[] } = {}) {
     const item = current
     const firstAttempt = item.retry === 0
-    const earned = correct && firstAttempt ? XP_PER_ANSWER : 0
+    const earned = correct && firstAttempt ? XP_PER_ANSWER[difficulty] : 0
     if (opts.perWord) {
       opts.perWord.forEach((w, i) => recordAnswer({ key: `w:${w.id}:match`, wordIds: [w.id], correct: w.correct, xp: i === 0 ? earned : 0 }))
     } else {
@@ -192,13 +200,15 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
         <div className="lesson-bar" role="progressbar" aria-valuenow={resolved} aria-valuemax={total}>
           <div className="lesson-bar-fill" style={{ width: `${(resolved / total) * 100}%` }} />
         </div>
+        {difficulty === 'hard' && <span className="hard-badge" title="Mode difficile">💪</span>}
         {combo >= 3 && <span className="combo">🔥 {combo}</span>}
       </header>
 
       <main className="lesson-body" key={pos}>
         {current.retry > 0 && <span className="retry-tag">↻ Erreur précédente</span>}
         <div className="lesson-head">
-          <Mascot mood={mood} size={64} />
+          {/* Quand un personnage parle dans l'exercice, Pépin laisse la place */}
+          {!hasSpeaker(ex) && <Mascot mood={mood} size={64} />}
           <h2>{ex.instruction}</h2>
         </div>
         {ex.kind === 'choice' && <ChoiceView ex={ex} locked={!!feedback} onPending={setPending} />}
@@ -278,9 +288,14 @@ function LessonEnd({ unitTitle, exam, accuracy, seconds, xp, mastered }: { unitT
   const m = Math.floor(seconds / 60)
   const s = Math.round(seconds % 60)
   const pct = Math.round(accuracy * 100)
+  // Un copain différent vient danser avec Pépin à chaque fin de leçon
+  const [friend] = useState(() => pick(CAST.filter((c) => c.id !== 'pepin')).id)
   return (
     <div className="lesson lesson-end">
-      <Mascot mood="dance" size={150} />
+      <div className="end-cast">
+        <Mascot mood="dance" size={140} />
+        <Character id={friend} mood="dance" size={110} />
+      </div>
       <h1>{exam ? 'Unité validée !' : 'Leçon terminée !'}</h1>
       <p className="muted">{exam ? `Tu as bouclé « ${unitTitle} ». Bravo !` : pct === 100 ? 'Sans aucune erreur, impressionnant !' : 'Chaque leçon te rapproche du 7.'}</p>
       {mastered && <p className="mastered-msg">👑 Leçon maîtrisée !</p>}

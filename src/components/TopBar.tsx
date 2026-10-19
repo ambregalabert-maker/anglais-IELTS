@@ -13,6 +13,7 @@ export default function TopBar() {
   const { goalRatio, minutes } = useToday()
   const lvl = levelInfo(p.xp)
   const doneToday = p.streak.lastActiveDay === dayKey()
+  const muted = !p.settings.sound && !p.settings.voice
 
   return (
     <header className="topbar">
@@ -36,13 +37,14 @@ export default function TopBar() {
       <button
         className="icon-btn"
         onClick={() => {
-          updateSettings({ sound: !p.settings.sound })
-          if (!p.settings.sound) setTimeout(() => playSound('tap'), 0)
+          // Coupe (ou remet) tout : les effets sonores ET la voix
+          updateSettings({ sound: muted, voice: muted })
+          if (muted) setTimeout(() => playSound('tap'), 0)
         }}
-        title={p.settings.sound ? 'Couper le son' : 'Activer le son'}
-        aria-label={p.settings.sound ? 'Couper le son' : 'Activer le son'}
+        title={muted ? 'Activer le son' : 'Couper tout le son'}
+        aria-label={muted ? 'Activer le son' : 'Couper tout le son'}
       >
-        {p.settings.sound ? '🔊' : '🔇'}
+        {muted ? '🔇' : '🔊'}
       </button>
     </header>
   )
