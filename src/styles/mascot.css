@@ -1,0 +1,216 @@
+/* Animations de Pépin. Les origines de rotation sont en unités du dessin (viewBox 120 × 130). */
+
+.mascot {
+  overflow: visible;
+  display: block;
+}
+.mascot .m-shadow {
+  fill: rgba(43, 33, 64, 0.12);
+}
+.mascot .m-all,
+.mascot .m-body,
+.mascot .m-arm,
+.mascot .m-sprout {
+  transform-box: view-box;
+}
+.mascot .m-arm-l {
+  transform-origin: 23px 80px;
+  transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.mascot .m-arm-r {
+  transform-origin: 97px 80px;
+  transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.mascot .m-arm-l.up {
+  transform: rotate(105deg);
+}
+.mascot .m-arm-r.up {
+  transform: rotate(-105deg);
+}
+.mascot .m-sprout {
+  transform-origin: 60px 26px;
+}
+.mascot .m-all {
+  transform-origin: 60px 124px;
+}
+
+/* Au repos : respire doucement, la pousse se balance */
+.mascot--idle .m-all {
+  animation: m-breathe 3s ease-in-out infinite;
+}
+.mascot--idle .m-sprout,
+.mascot--wave .m-sprout,
+.mascot--think .m-sprout {
+  animation: m-sway 3s ease-in-out infinite;
+}
+.mascot--idle .m-eyes,
+.mascot--wave .m-eyes {
+  animation: m-blink 4.5s infinite;
+  transform-origin: 60px 66px;
+  transform-box: view-box;
+}
+
+/* Contente : petits sauts */
+.mascot--happy .m-all {
+  animation: m-hop 0.9s cubic-bezier(0.3, 0, 0.5, 1) infinite;
+}
+.mascot--happy .m-sprout {
+  animation: m-sway 0.9s ease-in-out infinite;
+}
+
+/* Danse : se dandine, bras levés qui bougent */
+.mascot--dance .m-all {
+  animation: m-dance 0.8s ease-in-out infinite;
+}
+.mascot--dance .m-arm-l.up {
+  animation: m-arm-l 0.4s ease-in-out infinite alternate;
+}
+.mascot--dance .m-arm-r.up {
+  animation: m-arm-r 0.4s ease-in-out infinite alternate;
+}
+.mascot--dance .m-sprout {
+  animation: m-sway 0.4s ease-in-out infinite;
+}
+
+/* Déçue mais encourageante : se tasse un peu puis se redresse */
+.mascot--sad .m-all {
+  animation: m-sad 2.4s ease-in-out infinite;
+}
+.mascot--sad .m-sprout {
+  transform: rotate(-18deg);
+}
+
+/* Coucou : le bras droit fait signe */
+.mascot--wave .m-arm-r.up {
+  animation: m-wave 0.9s ease-in-out infinite;
+}
+.mascot--wave .m-all {
+  animation: m-breathe 3s ease-in-out infinite;
+}
+
+/* Dort : respiration lente, z qui montent */
+.mascot--sleep .m-all {
+  animation: m-breathe 4s ease-in-out infinite;
+}
+.mascot--sleep .m-sprout {
+  transform: rotate(25deg);
+}
+.mascot .m-zzz text {
+  animation: m-z 2.4s ease-in-out infinite;
+  opacity: 0;
+}
+.mascot .m-zzz text:nth-child(2) {
+  animation-delay: 0.6s;
+}
+.mascot .m-zzz text:nth-child(3) {
+  animation-delay: 1.2s;
+}
+
+/* Réfléchit */
+.mascot .m-look-up {
+  transform: translate(3px, -4px);
+}
+.mascot--think .m-all {
+  animation: m-tilt 3s ease-in-out infinite;
+}
+
+@keyframes m-breathe {
+  50% {
+    transform: scale(1.03, 0.97);
+  }
+}
+@keyframes m-sway {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+@keyframes m-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes m-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.04, 0.96);
+  }
+  40% {
+    transform: translateY(-14px) scale(0.97, 1.03);
+  }
+}
+@keyframes m-dance {
+  0%,
+  100% {
+    transform: rotate(-9deg) translateY(0);
+  }
+  25% {
+    transform: rotate(0) translateY(-8px);
+  }
+  50% {
+    transform: rotate(9deg) translateY(0);
+  }
+  75% {
+    transform: rotate(0) translateY(-8px);
+  }
+}
+@keyframes m-arm-l {
+  from {
+    transform: rotate(85deg);
+  }
+  to {
+    transform: rotate(125deg);
+  }
+}
+@keyframes m-arm-r {
+  from {
+    transform: rotate(-85deg);
+  }
+  to {
+    transform: rotate(-125deg);
+  }
+}
+@keyframes m-wave {
+  0%,
+  100% {
+    transform: rotate(-90deg);
+  }
+  50% {
+    transform: rotate(-130deg);
+  }
+}
+@keyframes m-sad {
+  0%,
+  100% {
+    transform: scale(1.02, 0.97) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1, 1) rotate(2deg);
+  }
+}
+@keyframes m-tilt {
+  50% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes m-z {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
