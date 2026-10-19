@@ -33,6 +33,23 @@ export interface StreakState {
   frozenDays: string[]
 }
 
+/** Suivi d'un mot (boîtes de Leitner : 0 = nouveau, 5 = maîtrisé). */
+export interface WordStat {
+  seen: number
+  correct: number
+  wrong: number
+  box: number
+  due: string // date à laquelle le mot doit revenir en révision
+  lastSeen: string
+}
+
+/** Un exercice raté (identifié par une clé stable), pour la séance « Mes erreurs ». */
+export interface MistakeStat {
+  wrong: number
+  lastWrong: string
+  resolved: boolean // repassé juste depuis
+}
+
 export interface Progress {
   version: 1
   createdAt: string
@@ -41,5 +58,7 @@ export interface Progress {
   streak: StreakState
   badges: Record<string, string> // id → date d'obtention
   lessons: Record<string, LessonProgress>
+  words: Record<string, WordStat>
+  mistakes: Record<string, MistakeStat>
   settings: Settings
 }

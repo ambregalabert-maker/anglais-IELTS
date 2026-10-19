@@ -25,7 +25,9 @@ npm run build    # crée le dossier dist/, c'est lui qu'on héberge
 
 | Je veux… | Fichier |
 |---|---|
-| ajouter ou modifier une unité du chemin | `src/data/units.ts` |
+| changer le titre ou la couleur d'une unité | `src/data/units.ts` |
+| ajouter des mots ou des exercices à une unité | `src/data/vocab/<unité>.ts` (le format est expliqué dans `src/data/vocab/types.ts`) |
+| vérifier que le contenu ne contient pas d'erreur | `npm run check:content` |
 | ajouter un badge | `src/data/badges.ts` |
 | ajouter un module (ex. Speaking) | une page dans `src/pages/`, puis une ligne dans `src/modules/registry.tsx` |
 | changer les couleurs | `src/styles/global.css` (en haut du fichier) |
@@ -33,7 +35,7 @@ npm run build    # crée le dossier dist/, c'est lui qu'on héberge
 ## Avancement
 
 - [x] Étape 1 : navigation, design, mascotte, XP, niveaux, série, objectif du jour, badges, sauvegarde, export / import
-- [ ] Étape 2 : leçons du chemin (unités de mes cours, tous les types d'exercices)
+- [x] Étape 2 : leçons du chemin (6 unités de mes cours, 217 mots, 7 types d’exercices)
 - [ ] Étape 3 : révisions (répétition espacée, erreurs, flashcards)
 - [ ] Étape 4 : Vocab Lab et nouveaux thèmes IELTS
 - [ ] Étape 5 : Writing (Task 2 guidée, mode examen, Task 1, grammaire)

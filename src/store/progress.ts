@@ -6,10 +6,13 @@ import { BADGES, BADGE_BY_ID } from '../data/badges'
 import { addDays, dayKey, daysBetween } from '../lib/dates'
 import { levelInfo } from '../lib/levels'
 import { emit } from './events'
-import type { DayLog, Progress, Settings } from './types'
+import type { DayLog, Progress, Settings, WordStat } from './types'
 
 const STORAGE_KEY = 'pepin-ielts-progress'
 const MAX_FREEZES = 2
+// Intervalle (en jours) avant de revoir un mot, selon sa boîte de Leitner
+const BOX_INTERVALS = [0, 1, 2, 4, 8, 16]
+export const MASTERED_BOX = 4
 
 export const DEFAULT_PROGRESS: Progress = {
   version: 1,
@@ -19,6 +22,8 @@ export const DEFAULT_PROGRESS: Progress = {
   streak: { current: 0, best: 0, lastActiveDay: null, freezes: 0, frozenDays: [] },
   badges: {},
   lessons: {},
+  words: {},
+  mistakes: {},
   settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, theme: 'system' },
 }
 
@@ -134,14 +139,36 @@ function touchStreak(d: Progress) {
 
 // ---------- Actions ----------
 
-/** Enregistre un exercice terminé (juste ou faux) et l'XP gagnée. */
-export function recordExercise({ correct, xp }: { correct: boolean; xp: number }) {
+/**
+ * Enregistre une réponse : statistiques du jour, XP, série, et suivi des mots / erreurs.
+ * `key` identifie l'exercice (pour « Mes erreurs »), `wordIds` les mots travaillés.
+ */
+export function recordAnswer({ key, wordIds, correct, xp }: { key: string; wordIds: string[]; correct: boolean; xp: number }) {
   update((d) => {
     const t = today(d)
     t.exercises++
     if (correct) t.correct++
     addXpTo(d, xp)
     touchStreak(d)
+    const now = dayKey()
+    for (const id of wordIds) {
+      const w: WordStat = d.words[id] ?? { seen: 0, correct: 0, wrong: 0, box: 0, due: now, lastSeen: now }
+      w.seen++
+      w.lastSeen = now
+      if (correct) {
+        w.correct++
+        // On ne monte que d'une boîte par jour, pour que la répétition reste espacée
+        if (w.due <= now) w.box = Math.min(5, w.box + 1)
+      } else {
+        w.wrong++
+        w.box = 1
+      }
+      w.due = addDays(now, BOX_INTERVALS[w.box])
+      d.words[id] = w
+    }
+    const m = d.mistakes[key]
+    if (!correct) d.mistakes[key] = { wrong: (m?.wrong ?? 0) + 1, lastWrong: now, resolved: false }
+    else if (m) m.resolved = true
   })
 }
 

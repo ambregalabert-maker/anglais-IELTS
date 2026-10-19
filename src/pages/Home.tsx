@@ -1,17 +1,21 @@
 import { Fragment } from 'react'
-import { IconCheck, IconCrown, IconLock, IconPath, IconStar, IconTrophy } from '../components/Icons'
+import { IconCheck, IconCrown, IconPath, IconStar, IconTrophy } from '../components/Icons'
 import Mascot from '../components/Mascot'
 import ModuleHeader from '../components/ModuleHeader'
 import ProgressRing from '../components/ProgressRing'
 import { UNITS, type UnitMeta } from '../data/units'
+import { CONTENT } from '../data/vocab'
 import { formatLongDate } from '../lib/dates'
+import { navigate } from '../lib/router'
 import { playSound } from '../lib/sound'
 import { toast } from '../store/events'
 import { useDaysToExam, useToday } from '../store/hooks'
 import { useProgress } from '../store/progress'
 import type { Progress } from '../store/types'
 
-type NodeState = 'locked' | 'available' | 'done' | 'mastered'
+// Toutes les leçons sont ouvertes : « next » est simplement la leçon conseillée (la première pas encore faite).
+// « soon » : thème dont le contenu n'est pas encore écrit.
+type NodeState = 'todo' | 'next' | 'done' | 'mastered' | 'soon'
 
 interface PathNode {
   id: string
@@ -24,24 +28,30 @@ interface PathNode {
 const OFFSETS = [0, 46, 72, 46, 0, -46, -72, -46]
 
 function buildNodes(): PathNode[] {
-  return UNITS.flatMap((unit) => [
-    ...Array.from({ length: unit.lessons }, (_, i) => ({ id: `${unit.id}-${i + 1}`, unit, index: i, exam: false })),
-    { id: `${unit.id}-exam`, unit, index: unit.lessons, exam: true },
-  ])
+  return UNITS.flatMap((unit) => {
+    const count = CONTENT[unit.id]?.lessons.length ?? unit.lessons
+    return [
+      ...Array.from({ length: count }, (_, i) => ({ id: `${unit.id}-${i + 1}`, unit, index: i, exam: false })),
+      { id: `${unit.id}-exam`, unit, index: count, exam: true },
+    ]
+  })
 }
 
 const NODES = buildNodes()
+
+const STATE_LABEL: Record<NodeState, string> = { todo: 'à faire', next: 'conseillée', done: 'terminée', mastered: 'maîtrisée', soon: 'bientôt' }
 
 function nodeStates(p: Progress): Record<string, NodeState> {
   const states: Record<string, NodeState> = {}
   let foundCurrent = false
   for (const n of NODES) {
     const lp = p.lessons[n.id]
-    if (lp?.completed) states[n.id] = lp.mastered ? 'mastered' : 'done'
+    if (!CONTENT[n.unit.id]) states[n.id] = 'soon'
+    else if (lp?.completed) states[n.id] = lp.mastered ? 'mastered' : 'done'
     else if (!foundCurrent) {
-      states[n.id] = 'available'
+      states[n.id] = 'next'
       foundCurrent = true
-    } else states[n.id] = 'locked'
+    } else states[n.id] = 'todo'
   }
   return states
 }
@@ -101,20 +111,15 @@ export default function Home() {
                       <button
                         className={`path-node ${state} ${n.exam ? 'exam' : ''}`}
                         style={{ ['--unit' as string]: unit.color, ['--unit-shade' as string]: unit.shade }}
-                        aria-label={`${unit.title}, ${n.exam ? 'évaluation' : `leçon ${n.index + 1}`} (${state})`}
+                        aria-label={`${unit.title}, ${n.exam ? 'évaluation' : `leçon ${n.index + 1}`} (${STATE_LABEL[state]})`}
+                        title={n.exam ? 'Évaluation de l’unité' : CONTENT[unit.id]?.lessons[n.index]?.title}
                         onClick={() => {
-                          if (state === 'locked') {
-                            playSound('wrong')
-                            toast('Termine d’abord les leçons précédentes', '🔒')
-                          } else {
-                            playSound('tap')
-                            toast('Les leçons arrivent à l’étape 2', '🚧')
-                          }
+                          playSound('tap')
+                          if (state === 'soon') toast('Ce thème arrive à l’étape 4', '🚧')
+                          else navigate(`/lesson/${unit.id}/${n.exam ? 'exam' : n.index}`)
                         }}
                       >
-                        {state === 'locked' ? (
-                          <IconLock />
-                        ) : n.exam ? (
+                        {n.exam ? (
                           <IconTrophy />
                         ) : state === 'mastered' ? (
                           <IconCrown />
@@ -124,7 +129,7 @@ export default function Home() {
                           <IconStar />
                         )}
                       </button>
-                      {state === 'available' && (
+                      {state === 'next' && (
                         <div className={`path-mascot ${offset > 0 ? 'left' : 'right'}`}>
                           <div className="bubble">C’est parti !</div>
                           <Mascot mood="wave" size={78} />

@@ -581,7 +581,12 @@ small {
   transform: translateY(6px);
   box-shadow: 0 1px 0 var(--edge);
 }
-.path-node.locked {
+.path-node.todo {
+  --face: color-mix(in srgb, var(--unit) 22%, var(--surface));
+  --edge: color-mix(in srgb, var(--unit) 45%, var(--surface));
+  color: var(--unit);
+}
+.path-node.soon {
   --face: var(--locked);
   --edge: var(--locked-shade);
   color: var(--text-soft);
@@ -594,7 +599,7 @@ small {
 .path-node.exam {
   border-radius: 22px;
 }
-.path-node.available::before {
+.path-node.next::before {
   content: '';
   position: absolute;
   inset: -9px;
