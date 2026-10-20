@@ -8,6 +8,10 @@ import LessonPlayer from './lesson/LessonPlayer'
 import Flashcards from './review/Flashcards'
 import ReviewSession, { type ReviewMode } from './review/ReviewSession'
 import type { Deck } from './review/data'
+import DrillSession from './writing/DrillSession'
+import EssayReport from './writing/EssayReport'
+import ExamWriter from './writing/ExamWriter'
+import Task2Guided from './writing/Task2Guided'
 import { useRoute } from './lib/router'
 import { findModule } from './modules/registry'
 import { useApplySettings } from './store/hooks'
@@ -20,6 +24,15 @@ function fullScreenPage(route: string) {
   if (review) return <ReviewSession mode={review[1] as ReviewMode} />
   const lab = route.match(/^\/lab\/([a-z]+)$/)
   if (lab) return <LabSession mode={lab[1] as LabMode} />
+  const guided = route.match(/^\/writing\/guided\/([\w-]+)$/)
+  if (guided) return <Task2Guided topicId={guided[1]} />
+  const exam = route.match(/^\/writing\/exam\/([12])\/([\w-]+)$/)
+  if (exam) return <ExamWriter task={Number(exam[1]) as 1 | 2} id={exam[2]} />
+  const essay = route.match(/^\/writing\/essay\/([\w-]+)$/)
+  if (essay) return <EssayReport id={essay[1]} />
+  if (route === '/writing/task1') return <DrillSession kind="task1" />
+  const grammar = route.match(/^\/writing\/grammar\/([\w-]+)$/)
+  if (grammar) return <DrillSession kind="grammar" topic={grammar[1]} />
   const cards = route.match(/^\/review\/cards\/(.+)$/)
   if (cards) return <Flashcards deck={cards[1] as Deck} />
   return null

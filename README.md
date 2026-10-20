@@ -38,7 +38,7 @@ npm run build    # crée le dossier dist/, c'est lui qu'on héberge
 - [x] Étape 2 : leçons du chemin (6 unités de mes cours, 217 mots, 7 types d’exercices)
 - [x] Étape 3 : révisions (répétition espacée, « Mes erreurs », flashcards) + niveaux Difficile et Expert, personnages
 - [x] Étape 4 : 12 thèmes IELTS (B2 → C2, 541 mots au total) et Vocab Lab (7 modes, glossaire)
-- [ ] Étape 5 : Writing (Task 2 guidée, mode examen, Task 1, grammaire)
+- [x] Étape 5 : Writing (Task 2 guidée en 9 étapes, 21 sujets avec essais modèles, modes examen, vérifications automatiques, Task 1 avec graphiques, grammaire)
 - [ ] Étape 6 : Listening (stratégies)
 - [ ] Étape 7 : mode Tryhard et Pomodoro caché
 - [ ] Étape 8 : plan de préparation et bloc « Aujourd'hui »

@@ -6,7 +6,7 @@ import { BADGES, BADGE_BY_ID } from '../data/badges'
 import { addDays, dayKey, daysBetween } from '../lib/dates'
 import { levelInfo } from '../lib/levels'
 import { emit } from './events'
-import type { DayLog, Progress, Settings, WordStat } from './types'
+import type { DayLog, EssayRecord, Progress, Settings, WordStat } from './types'
 
 const STORAGE_KEY = 'pepin-ielts-progress'
 const MAX_FREEZES = 2
@@ -25,6 +25,8 @@ export const DEFAULT_PROGRESS: Progress = {
   words: {},
   mistakes: {},
   reviewSessions: 0,
+  essays: [],
+  drafts: {},
   settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, difficulty: 'normal', theme: 'system' },
 }
 
@@ -197,6 +199,35 @@ export function resolveMistake(key: string) {
 export function completeReview() {
   update((d) => {
     d.reviewSessions++
+  })
+}
+
+// ---------- Writing ----------
+
+export function saveEssay(e: Omit<EssayRecord, 'id' | 'date'>): string {
+  const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+  update((d) => {
+    d.essays.unshift({ ...e, id, date: dayKey() })
+    if (e.task === 2 && e.words >= 250) awardTo(d, 'essay-250')
+  })
+  return id
+}
+
+export function deleteEssay(id: string) {
+  update((d) => {
+    d.essays = d.essays.filter((e) => e.id !== id)
+  })
+}
+
+export function saveDraft(key: string, fields: Record<string, string>) {
+  update((d) => {
+    d.drafts[key] = fields
+  })
+}
+
+export function clearDraft(key: string) {
+  update((d) => {
+    delete d.drafts[key]
   })
 }
 

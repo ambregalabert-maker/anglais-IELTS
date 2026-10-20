@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { CAST } from '../characters/cast'
 import Character from '../characters/Character'
+import Chart from '../components/Chart'
+import { chartById } from '../data/writing/task1'
 import Mascot, { type MascotMood } from '../components/Mascot'
 import { UNITS } from '../data/units'
 import { confetti } from '../lib/confetti'
@@ -260,6 +262,7 @@ export function SessionPlayer({ exercises: initial, difficulty, color, shade, ex
           {!hasSpeaker(ex) && <Mascot mood={mood} size={64} />}
           <h2>{ex.instruction}</h2>
         </div>
+        {ex.chartId && chartById(ex.chartId) && <Chart chart={chartById(ex.chartId)!} />}
         {ex.kind === 'choice' && <ChoiceView ex={ex} locked={!!feedback} onPending={setPending} />}
         {ex.kind === 'type' && <TypeView ex={ex} locked={!!feedback} onPending={setPending} />}
         {ex.kind === 'judge' && <JudgeView ex={ex} locked={!!feedback} onPending={setPending} />}

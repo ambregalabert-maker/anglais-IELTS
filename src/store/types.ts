@@ -55,6 +55,19 @@ export interface MistakeStat {
   resolved: boolean // repassé juste depuis
 }
 
+/** Un essai enregistré (mode examen ou parcours guidé). */
+export interface EssayRecord {
+  id: string
+  task: 1 | 2
+  topicId: string // sujet Task 2 ou graphique Task 1
+  mode: 'exam' | 'guided'
+  text: string
+  words: number
+  issues: number
+  seconds: number
+  date: string
+}
+
 export interface Progress {
   version: 1
   createdAt: string
@@ -66,5 +79,7 @@ export interface Progress {
   words: Record<string, WordStat>
   mistakes: Record<string, MistakeStat>
   reviewSessions: number
+  essays: EssayRecord[]
+  drafts: Record<string, Record<string, string>> // brouillons (parcours guidé, examen en cours)
   settings: Settings
 }

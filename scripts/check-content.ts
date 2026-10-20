@@ -6,6 +6,8 @@ import { UNITS } from '../src/data/units'
 import { buildLesson, exerciseFromKey } from '../src/lesson/engine'
 import { LAB_MODES, buildLab } from '../src/lab/engine'
 import { FAMILIES } from '../src/data/lab/families'
+import { buildGrammar, buildTask1Drills } from '../src/writing/engine'
+import { GRAMMAR } from '../src/data/writing/grammar'
 
 let problems = 0
 const warn = (msg: string) => {
@@ -72,6 +74,21 @@ for (const m of LAB_MODES)
       }
     }
 console.log(`${labCount} exercices du Lab générés et vérifiés.`)
+
+// ---------- Writing ----------
+let wCount = 0
+for (let k = 0; k < 60; k++) {
+  for (const e of [...buildTask1Drills(), ...buildGrammar(GRAMMAR[k % GRAMMAR.length].id), ...buildGrammar('mix')]) {
+    wCount++
+    if (e.kind === 'choice') {
+      if (new Set(e.options).size !== e.options.length) warn(`${e.key} : options en double ${e.options.join(' | ')}`)
+      if (!e.options.includes(e.answer)) warn(`${e.key} : réponse absente`)
+      if (e.options.length < 3) warn(`${e.key} : trop peu d'options`)
+    }
+    if (!exerciseFromKey(e.key, 'normal')) warn(`${e.key} : impossible à recréer`)
+  }
+}
+console.log(`${wCount} exercices Writing générés et vérifiés.`)
 
 console.log(`\n${total} mots dans ${Object.keys(CONTENT).length} unités. ${problems} problème(s).`)
 process.exit(problems ? 1 : 0)

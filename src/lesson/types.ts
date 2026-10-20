@@ -5,6 +5,7 @@ interface Base {
   wordIds: string[] // mots travaillés
   instruction: string // consigne en français
   explanation?: string // affichée après une erreur
+  chartId?: string // graphique Task 1 à afficher au-dessus de l'exercice
 }
 
 /** QCM : choisir le bon mot, la bonne définition, la bonne traduction, ou compléter une phrase. */
