@@ -119,11 +119,14 @@ export function TypeView({ ex, locked, onPending }: ViewProps<TypeExercise>) {
     setValue(v)
     if (!v.trim()) return onPending(null)
     const r = matchTyped(v, ex.accepted, { ignoreAccents: ex.ignoreAccents })
-    onPending({ correct: r !== 'wrong', typo: r === 'typo', given: v })
+    // Orthographe / dictée : une faute de frappe compte comme une erreur
+    const correct = ex.strict ? r === 'exact' : r !== 'wrong'
+    onPending({ correct, typo: !ex.strict && r === 'typo', given: v })
   }
 
   return (
     <div className="ex">
+      {ex.speak && <DictationButton text={ex.speak} />}
       {ex.prompt && (
         <div className="ex-prompt">
           <span>{ex.prompt}</span>
@@ -145,6 +148,27 @@ export function TypeView({ ex, locked, onPending }: ViewProps<TypeExercise>) {
         enterKeyHint="done"
       />
       {ex.hint && <p className="ex-hint">💡 {ex.hint}</p>}
+    </div>
+  )
+}
+
+/** Gros bouton « écouter » pour les dictées (lu automatiquement à l'apparition). */
+function DictationButton({ text }: { text: string }) {
+  const voiceOn = useProgress().settings.voice
+  useEffect(() => {
+    if (!voiceOn) return
+    const t = setTimeout(() => speak(text), 300)
+    return () => clearTimeout(t)
+  }, [text, voiceOn])
+  if (!voiceOn) return <p className="ex-hint">🔇 Voix coupée : active-la dans ton profil pour faire les dictées. Indice ci-dessous.</p>
+  return (
+    <div className="dictation">
+      <button className="dictation-btn" onClick={() => speak(text)} aria-label="Écouter">
+        <IconSpeaker size={34} />
+      </button>
+      <button className="dictation-slow" onClick={() => speak(text, { profile: { usePreferred: true, rate: 0.65 } })}>
+        🐢 Plus lentement
+      </button>
     </div>
   )
 }

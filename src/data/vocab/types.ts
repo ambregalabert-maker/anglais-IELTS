@@ -3,7 +3,7 @@
 // Pour ajouter un mot : une ligne dans `words` d'une leçon.
 // Pour ajouter un exercice écrit à la main : une ligne dans `cloze`, `judge` ou `sentences`.
 
-export type Level = 'B1' | 'B2' | 'C1'
+export type Level = 'B1' | 'B2' | 'C1' | 'C2'
 
 export interface Word {
   word: string // le mot ou l'expression, tel qu'on doit le taper

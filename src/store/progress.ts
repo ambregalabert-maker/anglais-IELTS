@@ -186,6 +186,13 @@ export function recordAnswer({
   })
 }
 
+/** Erreur impossible à recréer (contenu modifié) : on la retire de la liste. */
+export function resolveMistake(key: string) {
+  update((d) => {
+    if (d.mistakes[key]) d.mistakes[key].resolved = true
+  })
+}
+
 /** Une séance de révision ou de flashcards terminée. */
 export function completeReview() {
   update((d) => {

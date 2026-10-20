@@ -4,6 +4,7 @@
 import { CONTENT, WORD_BY_ID, wordId, type WordRef } from '../data/vocab'
 import type { Cloze, Judge, Sentence } from '../data/vocab/types'
 import { escapeRegExp, normalizeLoose, sample, shuffle } from '../lib/text'
+import { labFromKey } from '../lab/engine'
 import type { Difficulty } from '../store/types'
 import type { ChoiceExercise, Exercise, JudgeExercise, MatchExercise, ReorderExercise, TypeExercise } from './types'
 
@@ -383,6 +384,7 @@ export function reviewExercise(w: WordRef, box: number, level: Difficulty): Exer
 
 /** Recrée un exercice à partir de sa clé (séance « Mes erreurs »). */
 export function exerciseFromKey(key: string, level: Difficulty): Exercise | null {
+  if (key.startsWith('lab:')) return labFromKey(key, level)
   if (key.startsWith('w:')) {
     const [, id, slot] = key.match(/^w:(.+):([a-z]+)$/) ?? []
     const w = WORD_BY_ID[id]

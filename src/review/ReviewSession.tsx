@@ -5,7 +5,7 @@ import { SessionPlayer } from '../lesson/LessonPlayer'
 import { exerciseFromKey, reviewExercise } from '../lesson/engine'
 import type { Exercise } from '../lesson/types'
 import { shuffle } from '../lib/text'
-import { completeReview, getProgress } from '../store/progress'
+import { completeReview, getProgress, resolveMistake } from '../store/progress'
 import { SESSION_SIZE, dueWords, openMistakes, weakWords } from './data'
 
 export type ReviewMode = 'due' | 'mistakes' | 'weak'
@@ -19,6 +19,7 @@ function build(mode: ReviewMode): Exercise[] {
       if (out.length >= SESSION_SIZE) break
       const ex = exerciseFromKey(key, level)
       if (ex) out.push({ ...ex, key })
+      else resolveMistake(key)
     }
     return shuffle(out)
   }

@@ -27,6 +27,8 @@ export interface TypeExercise extends Base {
   accepted: string[]
   answer: string // réponse affichée si c'est faux
   ignoreAccents?: boolean
+  speak?: string // texte lu à voix haute (dictée) : la réponse n'est pas affichée
+  strict?: boolean // orthographe : aucune faute de frappe tolérée
 }
 
 /** Associer 5 paires. */

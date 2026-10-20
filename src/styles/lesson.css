@@ -673,3 +673,36 @@
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
+
+/* Dictée */
+.dictation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 8px 0;
+}
+.dictation-btn {
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 0 var(--primary-shade);
+}
+.dictation-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+.dictation-slow {
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--border-strong);
+}

@@ -3,7 +3,9 @@
 
 import { CONTENT, unitWords } from '../src/data/vocab'
 import { UNITS } from '../src/data/units'
-import { buildLesson } from '../src/lesson/engine'
+import { buildLesson, exerciseFromKey } from '../src/lesson/engine'
+import { LAB_MODES, buildLab } from '../src/lab/engine'
+import { FAMILIES } from '../src/data/lab/families'
 
 let problems = 0
 const warn = (msg: string) => {
@@ -47,6 +49,29 @@ for (const unit of Object.values(CONTENT)) {
     if (exam.length < 14) warn(`${unit.unitId}/exam (${d}) : seulement ${exam.length} exercices`)
   }
 }
+
+// ---------- Vocab Lab ----------
+for (const f of FAMILIES)
+  for (const it of f.items) {
+    if (!f.forms.some((x) => x.toLowerCase() === it.a.toLowerCase())) warn(`famille ${f.root} : « ${it.a} » absent des formes`)
+    if (!it.s.includes('___')) warn(`famille ${f.root} : pas de ___ dans « ${it.s} »`)
+  }
+let labCount = 0
+for (const m of LAB_MODES)
+  for (const d of ['normal', 'hard', 'expert'] as const)
+    for (let k = 0; k < 15; k++) {
+      const exs = buildLab(m.id, d)
+      if (exs.length < 10) warn(`lab ${m.id} (${d}) : seulement ${exs.length} exercices`)
+      for (const e of exs) {
+        labCount++
+        if (e.kind === 'choice') {
+          if (new Set(e.options).size !== e.options.length) warn(`${e.key} : options en double ${e.options.join(' | ')}`)
+          if (!e.options.includes(e.answer)) warn(`${e.key} : réponse absente des options`)
+        }
+        if (!exerciseFromKey(e.key, d)) warn(`${e.key} : impossible à recréer`)
+      }
+    }
+console.log(`${labCount} exercices du Lab générés et vérifiés.`)
 
 console.log(`\n${total} mots dans ${Object.keys(CONTENT).length} unités. ${problems} problème(s).`)
 process.exit(problems ? 1 : 0)

@@ -7,9 +7,40 @@ import growingUp from './growing-up'
 import linking from './linking'
 import personality from './personality'
 import trends from './trends'
+import education from './education'
+import work from './work'
+import technology from './technology'
+import environment from './environment'
+import health from './health'
+import cities from './cities'
+import media from './media'
+import crime from './crime'
+import globalisation from './globalisation'
+import science from './science'
+import travel from './travel'
+import family from './family'
 import type { Lesson, UnitContent, Word } from './types'
 
-const ALL: UnitContent[] = [growingUp, appearance, personality, linking, trends, frenchErrors]
+const ALL: UnitContent[] = [
+  growingUp,
+  appearance,
+  personality,
+  linking,
+  trends,
+  frenchErrors,
+  education,
+  work,
+  technology,
+  environment,
+  health,
+  cities,
+  media,
+  crime,
+  globalisation,
+  science,
+  travel,
+  family,
+]
 
 export const CONTENT: Record<string, UnitContent> = Object.fromEntries(ALL.map((u) => [u.unitId, u]))
 
