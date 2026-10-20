@@ -5,6 +5,8 @@ import TopBar from './components/TopBar'
 import LabSession from './lab/LabSession'
 import type { LabMode } from './lab/engine'
 import LessonPlayer from './lesson/LessonPlayer'
+import ListeningSession from './listening/ListeningSession'
+import type { ListeningMode } from './listening/engine'
 import Flashcards from './review/Flashcards'
 import ReviewSession, { type ReviewMode } from './review/ReviewSession'
 import type { Deck } from './review/data'
@@ -33,6 +35,8 @@ function fullScreenPage(route: string) {
   if (route === '/writing/task1') return <DrillSession kind="task1" />
   const grammar = route.match(/^\/writing\/grammar\/([\w-]+)$/)
   if (grammar) return <DrillSession kind="grammar" topic={grammar[1]} />
+  const listening = route.match(/^\/listening\/([a-z]+)$/)
+  if (listening) return <ListeningSession mode={listening[1] as ListeningMode} />
   const cards = route.match(/^\/review\/cards\/(.+)$/)
   if (cards) return <Flashcards deck={cards[1] as Deck} />
   return null

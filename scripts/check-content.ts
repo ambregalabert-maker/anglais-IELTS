@@ -8,6 +8,8 @@ import { LAB_MODES, buildLab } from '../src/lab/engine'
 import { FAMILIES } from '../src/data/lab/families'
 import { buildGrammar, buildTask1Drills } from '../src/writing/engine'
 import { GRAMMAR } from '../src/data/writing/grammar'
+import { LISTENING_MODES, buildListening } from '../src/listening/engine'
+import { TRAPS } from '../src/data/listening'
 
 let problems = 0
 const warn = (msg: string) => {
@@ -89,6 +91,22 @@ for (let k = 0; k < 60; k++) {
   }
 }
 console.log(`${wCount} exercices Writing générés et vérifiés.`)
+
+// ---------- Listening ----------
+for (const t of TRAPS) if (!t.options.includes(t.answer)) warn(`piège « ${t.gap} » : réponse absente des options`)
+let lCount = 0
+for (const m of LISTENING_MODES)
+  for (let k = 0; k < 40; k++)
+    for (const e of buildListening(m.id)) {
+      lCount++
+      if (e.kind === 'choice') {
+        if (new Set(e.options).size !== e.options.length) warn(`${e.key} : options en double`)
+        if (!e.options.includes(e.answer)) warn(`${e.key} : réponse absente`)
+      }
+      if (e.kind === 'type' && !e.accepted.length) warn(`${e.key} : aucune réponse acceptée`)
+      if (!exerciseFromKey(e.key, 'normal')) warn(`${e.key} : impossible à recréer`)
+    }
+console.log(`${lCount} exercices Listening générés et vérifiés.`)
 
 console.log(`\n${total} mots dans ${Object.keys(CONTENT).length} unités. ${problems} problème(s).`)
 process.exit(problems ? 1 : 0)

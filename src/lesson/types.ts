@@ -30,6 +30,7 @@ export interface TypeExercise extends Base {
   ignoreAccents?: boolean
   speak?: string // texte lu à voix haute (dictée) : la réponse n'est pas affichée
   strict?: boolean // orthographe : aucune faute de frappe tolérée
+  compact?: boolean // nombres : les espaces ne comptent pas (07946 123456 = 07946123456)
 }
 
 /** Associer 5 paires. */

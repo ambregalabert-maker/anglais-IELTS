@@ -1208,3 +1208,54 @@ small {
 .l-C2 {
   background: #e05a9c;
 }
+
+/* ===== Listening ===== */
+.real-audio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #3ccf7a, #2fa866);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 5px 0 #1f7d4a;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.real-audio:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+.real-audio b {
+  font-size: 1.1rem;
+}
+.real-audio small {
+  color: rgba(255, 255, 255, 0.85);
+}
+.real-audio-arrow {
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+.tips {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tip-head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 1.02rem;
+}
+.tip-head span {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--success);
+}
+.tip-card .guide-intro {
+  margin-top: 10px;
+}

@@ -118,7 +118,8 @@ export function TypeView({ ex, locked, onPending }: ViewProps<TypeExercise>) {
   function change(v: string) {
     setValue(v)
     if (!v.trim()) return onPending(null)
-    const r = matchTyped(v, ex.accepted, { ignoreAccents: ex.ignoreAccents })
+    const squash = (x: string) => (ex.compact ? x.replace(/\s+/g, '') : x)
+    const r = matchTyped(squash(v), ex.accepted.map(squash), { ignoreAccents: ex.ignoreAccents })
     // Orthographe / dictée : une faute de frappe compte comme une erreur
     const correct = ex.strict ? r === 'exact' : r !== 'wrong'
     onPending({ correct, typo: !ex.strict && r === 'typo', given: v })
