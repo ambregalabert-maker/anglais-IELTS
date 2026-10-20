@@ -28,7 +28,9 @@ Le site se publie tout seul sur **GitHub Pages** à chaque modification, grâce 
 2. Dans **Build and deployment** → **Source**, choisis **GitHub Actions**.
 3. Va dans l'onglet **Actions**, ouvre « Mise en ligne », et clique sur **Run workflow** (ou attends la prochaine modification).
 4. Après une à deux minutes, le site est en ligne à l'adresse :
-   **https://ambregalabert-maker.github.io/anglais-ielts/**
+   **https://ambregalabert-maker.github.io/anglais-IELTS/** (attention aux majuscules de « IELTS »)
+
+Le site est aussi publié sur **Vercel** : **https://anglais-ielts-public.vercel.app**
 
 ### L'installer sur ton téléphone
 
