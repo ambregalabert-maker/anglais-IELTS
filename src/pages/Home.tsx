@@ -136,7 +136,7 @@ export default function Home() {
                         title={n.exam ? 'Évaluation de l’unité' : CONTENT[unit.id]?.lessons[n.index]?.title}
                         onClick={() => {
                           playSound('tap')
-                          if (state === 'soon') toast('Ce thème arrive à l’étape 4', '🚧')
+                          if (state === 'soon') toast('Ce thème arrive bientôt', '🚧')
                           else navigate(`/lesson/${unit.id}/${n.exam ? 'exam' : n.index}`)
                         }}
                       >

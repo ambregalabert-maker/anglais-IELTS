@@ -1413,3 +1413,10 @@ small {
   color: var(--text-soft);
   font-weight: 600;
 }
+
+.loading {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

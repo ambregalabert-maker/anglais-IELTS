@@ -1,25 +1,36 @@
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import Celebrations from './components/Celebrations'
+import Mascot from './components/Mascot'
 import NavBar from './components/NavBar'
 import TopBar from './components/TopBar'
-import LabSession from './lab/LabSession'
 import type { LabMode } from './lab/engine'
 import LessonPlayer from './lesson/LessonPlayer'
-import ListeningSession from './listening/ListeningSession'
 import type { ListeningMode } from './listening/engine'
 import Flashcards from './review/Flashcards'
 import ReviewSession, { type ReviewMode } from './review/ReviewSession'
 import type { Deck } from './review/data'
-import TryhardPage from './tryhard/TryhardPage'
 import type { TryhardModule } from './tryhard/generators'
-import DrillSession from './writing/DrillSession'
-import EssayReport from './writing/EssayReport'
-import ExamWriter from './writing/ExamWriter'
-import Task2Guided from './writing/Task2Guided'
 import { useRoute } from './lib/router'
 import { findModule } from './modules/registry'
 import { useApplySettings } from './store/hooks'
 import { checkStreakOnOpen } from './store/progress'
+
+// Écrans chargés à la demande
+const LabSession = lazy(() => import('./lab/LabSession'))
+const ListeningSession = lazy(() => import('./listening/ListeningSession'))
+const TryhardPage = lazy(() => import('./tryhard/TryhardPage'))
+const DrillSession = lazy(() => import('./writing/DrillSession'))
+const EssayReport = lazy(() => import('./writing/EssayReport'))
+const ExamWriter = lazy(() => import('./writing/ExamWriter'))
+const Task2Guided = lazy(() => import('./writing/Task2Guided'))
+
+function Loading() {
+  return (
+    <div className="loading">
+      <Mascot mood="think" size={90} />
+    </div>
+  )
+}
 
 function fullScreenPage(route: string) {
   const lesson = route.match(/^\/lesson\/([\w-]+)\/(\d+|exam)$/)
@@ -65,7 +76,9 @@ export default function App() {
   if (fullScreen) {
     return (
       <>
-        <div key={route}>{fullScreen}</div>
+        <Suspense fallback={<Loading />}>
+          <div key={route}>{fullScreen}</div>
+        </Suspense>
         <Celebrations />
       </>
     )
@@ -77,7 +90,9 @@ export default function App() {
       <div className="main">
         <TopBar />
         <main key={mod.id} className="fade-in">
-          <Page />
+          <Suspense fallback={<Loading />}>
+            <Page />
+          </Suspense>
         </main>
       </div>
       <Celebrations />
