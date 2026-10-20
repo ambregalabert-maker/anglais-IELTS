@@ -9,12 +9,14 @@ import { playSound, speak } from '../lib/sound'
 import { characterFor } from '../characters/cast'
 import SpeechBubble from '../characters/SpeechBubble'
 import { useProgress } from '../store/progress'
-import type { ChoiceExercise, JudgeExercise, MatchExercise, ReorderExercise, TypeExercise } from './types'
+import { analyse, countWords } from '../writing/checks'
+import type { ChoiceExercise, FreeExercise, JudgeExercise, MatchExercise, ReorderExercise, TypeExercise } from './types'
 
 export interface Pending {
   correct: boolean
   typo?: boolean // presque juste (faute de frappe)
   given: string
+  details?: string[] // remarques à afficher dans le bandeau (mini-rédaction)
 }
 
 interface ViewProps<T> {
@@ -320,6 +322,42 @@ export function MatchView({ ex, onComplete }: { ex: MatchExercise; onComplete: (
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ---------- Mini-rédaction ----------
+
+export function FreeView({ ex, locked, onPending }: ViewProps<FreeExercise>) {
+  const [text, setText] = useState('')
+  const words = countWords(text)
+
+  function change(v: string) {
+    setText(v)
+    if (countWords(v) < 3) return onPending(null)
+    const a = analyse(v, ex.task)
+    // Seules les vraies fautes comptent (pas les conseils de longueur, faits pour un essai complet)
+    const serious = a.issues.filter((i) => i.kind !== 'linking')
+    const details = serious.map((i) => `« ${i.text} » : ${i.message}`)
+    const enough = countWords(v) >= ex.minWords
+    if (!enough) details.unshift(`${countWords(v)} mots : il en faut au moins ${ex.minWords}.`)
+    onPending({ correct: enough && serious.length === 0, given: v, details })
+  }
+
+  return (
+    <div className="ex">
+      <div className="ex-prompt">
+        <span lang="en">{ex.prompt}</span>
+      </div>
+      {ex.source && (
+        <p className="ex-sentence free-source" lang="en">
+          « {ex.source} »
+        </p>
+      )}
+      <textarea className="free-input" rows={6} value={text} onChange={(e) => change(e.target.value)} readOnly={locked} placeholder="Écris en anglais…" lang="en" spellCheck={false} />
+      <p className={`ex-hint ${words >= ex.minWords ? 'ok' : ''}`}>
+        {words} / {ex.minWords} mots minimum
+      </p>
     </div>
   )
 }

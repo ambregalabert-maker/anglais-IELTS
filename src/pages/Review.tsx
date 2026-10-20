@@ -33,7 +33,7 @@ export default function Review() {
   if (seen === 0) {
     return (
       <div className="page">
-        <ModuleHeader title="Révisions" subtitle="Tes erreurs et tes mots à revoir, au bon moment" color="#ff5d8f" icon={<IconCards size={36} />} tryhard={false} />
+        <ModuleHeader title="Révisions" subtitle="Tes erreurs et tes mots à revoir, au bon moment" color="#ff5d8f" icon={<IconCards size={36} />} />
         <div className="card coming-soon">
           <Character id="nimbus" mood="think" size={96} />
           <div>
@@ -50,7 +50,7 @@ export default function Review() {
 
   return (
     <div className="page">
-      <ModuleHeader title="Révisions" subtitle="Tes erreurs et tes mots à revoir, au bon moment" color="#ff5d8f" icon={<IconCards size={36} />} tryhard={false} />
+      <ModuleHeader title="Révisions" subtitle="Tes erreurs et tes mots à revoir, au bon moment" color="#ff5d8f" icon={<IconCards size={36} />} />
 
       <section className="stats-grid">
         <div className="stat card">

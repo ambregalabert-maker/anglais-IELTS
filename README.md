@@ -40,6 +40,6 @@ npm run build    # crée le dossier dist/, c'est lui qu'on héberge
 - [x] Étape 4 : 12 thèmes IELTS (B2 → C2, 541 mots au total) et Vocab Lab (7 modes, glossaire)
 - [x] Étape 5 : Writing (Task 2 guidée en 9 étapes, 21 sujets avec essais modèles, modes examen, vérifications automatiques, Task 1 avec graphiques, grammaire)
 - [x] Étape 6 : Listening (lien vrais audios, prédire, paraphrases, pièges, consignes, dictées, fiche de conseils)
-- [ ] Étape 7 : mode Tryhard et Pomodoro caché
+- [x] Étape 7 : mode Tryhard dans chaque module (flux adaptatif, Pomodoro caché, pauses, bilan)
 - [ ] Étape 8 : plan de préparation et bloc « Aujourd'hui »
 - [ ] Étape 9 : finitions, PWA (appli installable, hors ligne), mise en ligne

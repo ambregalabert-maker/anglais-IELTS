@@ -14,6 +14,25 @@ export interface Settings {
   voiceRate: number // vitesse de la voix
   difficulty: Difficulty
   theme: ThemePref
+  pomodoro: PomodoroSettings
+}
+
+export interface PomodoroSettings {
+  enabled: boolean
+  work: number // minutes
+  short: number
+  long: number
+  every: number // pause longue toutes les N séances de travail
+}
+
+export interface TryhardRecord {
+  name: string
+  module: string
+  date: string
+  seconds: number // temps de travail effectif (hors pauses)
+  exercises: number
+  accuracy: number
+  xp: number
 }
 
 export interface DayLog {
@@ -80,6 +99,7 @@ export interface Progress {
   mistakes: Record<string, MistakeStat>
   reviewSessions: number
   essays: EssayRecord[]
+  tryhard: TryhardRecord[]
   drafts: Record<string, Record<string, string>> // brouillons (parcours guidé, examen en cours)
   settings: Settings
 }

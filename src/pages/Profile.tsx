@@ -70,7 +70,7 @@ export default function Profile() {
 
   return (
     <div className="page">
-      <ModuleHeader title="Profil & progrès" subtitle="Tes statistiques, tes badges et tes réglages" color="#6c4cf5" icon={<IconUser size={36} />} tryhard={false} />
+      <ModuleHeader title="Profil & progrès" subtitle="Tes statistiques, tes badges et tes réglages" color="#6c4cf5" icon={<IconUser size={36} />} />
 
       <section className="card level-card">
         <div className="level-badge">{lvl.level}</div>

@@ -10,6 +10,8 @@ import type { ListeningMode } from './listening/engine'
 import Flashcards from './review/Flashcards'
 import ReviewSession, { type ReviewMode } from './review/ReviewSession'
 import type { Deck } from './review/data'
+import TryhardPage from './tryhard/TryhardPage'
+import type { TryhardModule } from './tryhard/generators'
 import DrillSession from './writing/DrillSession'
 import EssayReport from './writing/EssayReport'
 import ExamWriter from './writing/ExamWriter'
@@ -37,6 +39,8 @@ function fullScreenPage(route: string) {
   if (grammar) return <DrillSession kind="grammar" topic={grammar[1]} />
   const listening = route.match(/^\/listening\/([a-z]+)$/)
   if (listening) return <ListeningSession mode={listening[1] as ListeningMode} />
+  const tryhard = route.match(/^\/tryhard\/(home|vocab|writing|listening)$/)
+  if (tryhard) return <TryhardPage module={tryhard[1] as TryhardModule} />
   const cards = route.match(/^\/review\/cards\/(.+)$/)
   if (cards) return <Flashcards deck={cards[1] as Deck} />
   return null

@@ -92,7 +92,7 @@ export default function Home() {
         </section>
       </div>
 
-      <ModuleHeader title="Chemin de vocabulaire" subtitle="Une leçon à la fois, de B1 jusqu’au C2" color="#6c4cf5" icon={<IconPath size={36} />} />
+      <ModuleHeader title="Chemin de vocabulaire" subtitle="Une leçon à la fois, de B1 jusqu’au C2" color="#6c4cf5" icon={<IconPath size={36} />} tryhard="home" />
 
       <div className="difficulty-row">
         <span>Difficulté</span>

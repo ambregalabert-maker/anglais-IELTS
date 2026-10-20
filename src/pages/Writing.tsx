@@ -24,7 +24,7 @@ export default function Writing() {
 
   return (
     <div className="page">
-      <ModuleHeader title="Writing" subtitle="Task 1, Task 2 et grammaire, avec ta méthode en 9 étapes" color="#ff9a4d" icon={<IconPen size={36} />} />
+      <ModuleHeader title="Writing" subtitle="Task 1, Task 2 et grammaire, avec ta méthode en 9 étapes" color="#ff9a4d" icon={<IconPen size={36} />} tryhard="writing" />
 
       <section className="lab-grid">
         <button className="lab-card" style={{ ['--c' as string]: '#ff9a4d' }} onClick={() => go('/writing/exam/2/random')}>

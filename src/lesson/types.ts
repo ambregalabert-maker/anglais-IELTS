@@ -55,4 +55,14 @@ export interface JudgeExercise extends Base {
   fix?: string
 }
 
-export type Exercise = ChoiceExercise | TypeExercise | MatchExercise | ReorderExercise | JudgeExercise
+/** Mini-rédaction libre (Writing), vérifiée automatiquement. */
+export interface FreeExercise extends Base {
+  kind: 'free'
+  prompt: string // la tâche (en anglais ou en français)
+  source?: string // texte de départ (phrase à reformuler…)
+  task: 1 | 2
+  minWords: number
+  sample?: string // exemple de réponse
+}
+
+export type Exercise = ChoiceExercise | TypeExercise | MatchExercise | ReorderExercise | JudgeExercise | FreeExercise

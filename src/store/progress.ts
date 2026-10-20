@@ -6,7 +6,7 @@ import { BADGES, BADGE_BY_ID } from '../data/badges'
 import { addDays, dayKey, daysBetween } from '../lib/dates'
 import { levelInfo } from '../lib/levels'
 import { emit } from './events'
-import type { DayLog, EssayRecord, Progress, Settings, WordStat } from './types'
+import type { DayLog, EssayRecord, Progress, Settings, TryhardRecord, WordStat } from './types'
 
 const STORAGE_KEY = 'pepin-ielts-progress'
 const MAX_FREEZES = 2
@@ -26,8 +26,9 @@ export const DEFAULT_PROGRESS: Progress = {
   mistakes: {},
   reviewSessions: 0,
   essays: [],
+  tryhard: [],
   drafts: {},
-  settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, difficulty: 'normal', theme: 'system' },
+  settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, difficulty: 'normal', theme: 'system', pomodoro: { enabled: false, work: 25, short: 5, long: 15, every: 4 } },
 }
 
 const EMPTY_DAY: DayLog = { xp: 0, seconds: 0, exercises: 0, correct: 0 }
@@ -199,6 +200,15 @@ export function resolveMistake(key: string) {
 export function completeReview() {
   update((d) => {
     d.reviewSessions++
+  })
+}
+
+// ---------- Tryhard ----------
+
+export function saveTryhard(r: TryhardRecord) {
+  update((d) => {
+    d.tryhard = [r, ...d.tryhard].slice(0, 30)
+    if (r.seconds >= 3600) awardTo(d, 'tryhard-60')
   })
 }
 

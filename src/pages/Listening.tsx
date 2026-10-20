@@ -13,7 +13,7 @@ export default function Listening() {
   const [open, setOpen] = useState<number | null>(0)
   return (
     <div className="page">
-      <ModuleHeader title="Listening" subtitle="Apprendre à anticiper avant d’écouter" color="#3ccf7a" icon={<IconHeadphones size={36} />} />
+      <ModuleHeader title="Listening" subtitle="Apprendre à anticiper avant d’écouter" color="#3ccf7a" icon={<IconHeadphones size={36} />} tryhard="listening" />
 
       <a className="real-audio" href={REAL_AUDIO_URL} target="_blank" rel="noopener noreferrer" onClick={() => playSound('tap')}>
         <Character id="mia" mood="happy" size={70} />

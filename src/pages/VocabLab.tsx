@@ -31,7 +31,7 @@ export default function VocabLab() {
 
   return (
     <div className="page">
-      <ModuleHeader title="Vocab Lab" subtitle="Le vocabulaire avancé pour viser le C2 en Lexical resource" color="#36b5ff" icon={<IconFlask size={36} />} />
+      <ModuleHeader title="Vocab Lab" subtitle="Le vocabulaire avancé pour viser le C2 en Lexical resource" color="#36b5ff" icon={<IconFlask size={36} />} tryhard="vocab" />
 
       <section className="lab-grid">
         {LAB_MODES.map((m) => (
