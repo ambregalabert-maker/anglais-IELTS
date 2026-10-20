@@ -12,7 +12,7 @@ import { navigate } from '../lib/router'
 import { playSound, speak } from '../lib/sound'
 import { shuffle } from '../lib/text'
 import { useStudyTimer } from '../lib/useStudyTimer'
-import { addXp, completeReview, getProgress, recordAnswer } from '../store/progress'
+import { addXp, completeReview, getProgress, logActivity, recordAnswer } from '../store/progress'
 import { SESSION_SIZE, deckTitle, deckWords, type Deck } from './data'
 
 const DECK_SIZE = SESSION_SIZE + 5
@@ -53,6 +53,7 @@ export default function Flashcards({ deck }: { deck: Deck }) {
     if (pos + 1 < next.length) setPos(pos + 1)
     else {
       completeReview()
+      logActivity('review')
       addXp(5)
       setXp((x) => x + 5)
       playSound('complete')

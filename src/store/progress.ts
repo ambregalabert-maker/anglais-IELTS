@@ -28,6 +28,7 @@ export const DEFAULT_PROGRESS: Progress = {
   essays: [],
   tryhard: [],
   drafts: {},
+  planChecks: {},
   settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, difficulty: 'normal', theme: 'system', pomodoro: { enabled: false, work: 25, short: 5, long: 15, every: 4 } },
 }
 
@@ -203,11 +204,31 @@ export function completeReview() {
   })
 }
 
+// ---------- Plan du jour ----------
+
+/** Note qu'une activité a été faite aujourd'hui (coche automatiquement la tâche du plan). */
+export function logActivity(...names: string[]) {
+  update((d) => {
+    const t = today(d)
+    t.activities = [...new Set([...(t.activities ?? []), ...names])]
+  })
+}
+
+export function togglePlanCheck(day: string, taskId: string) {
+  update((d) => {
+    const list = d.planChecks[day] ?? []
+    d.planChecks[day] = list.includes(taskId) ? list.filter((x) => x !== taskId) : [...list, taskId]
+  })
+}
+
 // ---------- Tryhard ----------
 
 export function saveTryhard(r: TryhardRecord) {
   update((d) => {
     d.tryhard = [r, ...d.tryhard].slice(0, 30)
+    const t = today(d)
+    const extra = { home: 'review', vocab: 'lab', writing: 'writing', listening: 'listening' }[r.module] ?? 'review'
+    t.activities = [...new Set([...(t.activities ?? []), 'tryhard', extra])]
     if (r.seconds >= 3600) awardTo(d, 'tryhard-60')
   })
 }
@@ -218,6 +239,8 @@ export function saveEssay(e: Omit<EssayRecord, 'id' | 'date'>): string {
   const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
   update((d) => {
     d.essays.unshift({ ...e, id, date: dayKey() })
+    const t = today(d)
+    t.activities = [...new Set([...(t.activities ?? []), 'writing', e.task === 2 ? (e.mode === 'exam' ? 'task2-exam' : 'task2') : 'task1-exam'])]
     if (e.task === 2 && e.words >= 250) awardTo(d, 'essay-250')
   })
   return id

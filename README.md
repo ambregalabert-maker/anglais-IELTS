@@ -41,5 +41,5 @@ npm run build    # crée le dossier dist/, c'est lui qu'on héberge
 - [x] Étape 5 : Writing (Task 2 guidée en 9 étapes, 21 sujets avec essais modèles, modes examen, vérifications automatiques, Task 1 avec graphiques, grammaire)
 - [x] Étape 6 : Listening (lien vrais audios, prédire, paraphrases, pièges, consignes, dictées, fiche de conseils)
 - [x] Étape 7 : mode Tryhard dans chaque module (flux adaptatif, Pomodoro caché, pauses, bilan)
-- [ ] Étape 8 : plan de préparation et bloc « Aujourd'hui »
+- [x] Étape 8 : plan de préparation (4 phases proportionnelles) et bloc « Aujourd'hui » (tâches cochées automatiquement)
 - [ ] Étape 9 : finitions, PWA (appli installable, hors ligne), mise en ligne

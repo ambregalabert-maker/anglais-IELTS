@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { SessionPlayer } from '../lesson/LessonPlayer'
-import { getProgress } from '../store/progress'
+import { getProgress, logActivity } from '../store/progress'
 import { LISTENING_MODES, buildListening, type ListeningMode } from './engine'
 
 export default function ListeningSession({ mode }: { mode: ListeningMode }) {
@@ -16,11 +16,14 @@ export default function ListeningSession({ mode }: { mode: ListeningMode }) {
       color={info.color}
       shade={info.color}
       exitPath="/listening"
-      onFinish={(accuracy) => ({
-        title: `${info.icon} ${info.title} : terminé !`,
-        message: accuracy >= 0.8 ? 'Tu es prête pour un vrai test : va t’entraîner avec de vrais audios !' : 'Relis la fiche de conseils, puis recommence.',
-        bonus: 10 + (accuracy === 1 ? 5 : 0),
-      })}
+      onFinish={(accuracy) => {
+        logActivity('listening')
+        return {
+          title: `${info.icon} ${info.title} : terminé !`,
+          message: accuracy >= 0.8 ? 'Tu es prête pour un vrai test : va t’entraîner avec de vrais audios !' : 'Relis la fiche de conseils, puis recommence.',
+          bonus: 10 + (accuracy === 1 ? 5 : 0),
+        }
+      }}
     />
   )
 }

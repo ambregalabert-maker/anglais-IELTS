@@ -6,7 +6,7 @@ import { REAL_AUDIO_URL, TIPS } from '../data/listening'
 import { LISTENING_MODES } from '../listening/engine'
 import { navigate } from '../lib/router'
 import { playSound } from '../lib/sound'
-import { useProgress } from '../store/progress'
+import { logActivity, useProgress } from '../store/progress'
 
 export default function Listening() {
   const voiceOn = useProgress().settings.voice
@@ -15,7 +15,10 @@ export default function Listening() {
     <div className="page">
       <ModuleHeader title="Listening" subtitle="Apprendre à anticiper avant d’écouter" color="#3ccf7a" icon={<IconHeadphones size={36} />} tryhard="listening" />
 
-      <a className="real-audio" href={REAL_AUDIO_URL} target="_blank" rel="noopener noreferrer" onClick={() => playSound('tap')}>
+      <a className="real-audio" href={REAL_AUDIO_URL} target="_blank" rel="noopener noreferrer" onClick={() => {
+          playSound('tap')
+          logActivity('listening', 'real-audio')
+        }}>
         <Character id="mia" mood="happy" size={70} />
         <span className="grow">
           <b>S’entraîner avec de vrais audios</b>

@@ -5,7 +5,7 @@ import { SessionPlayer } from '../lesson/LessonPlayer'
 import { exerciseFromKey, reviewExercise } from '../lesson/engine'
 import type { Exercise } from '../lesson/types'
 import { shuffle } from '../lib/text'
-import { completeReview, getProgress, resolveMistake } from '../store/progress'
+import { completeReview, getProgress, logActivity, resolveMistake } from '../store/progress'
 import { SESSION_SIZE, dueWords, openMistakes, weakWords } from './data'
 
 export type ReviewMode = 'due' | 'mistakes' | 'weak'
@@ -46,6 +46,7 @@ export default function ReviewSession({ mode }: { mode: ReviewMode }) {
       emptyMessage={TEXTS[mode].empty}
       onFinish={(accuracy) => {
         completeReview()
+        logActivity('review', mode === 'mistakes' ? 'mistakes' : 'review')
         const left = mode === 'mistakes' ? openMistakes(getProgress()).length : 0
         return {
           title: TEXTS[mode].title,

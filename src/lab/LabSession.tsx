@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { SessionPlayer } from '../lesson/LessonPlayer'
-import { getProgress } from '../store/progress'
+import { getProgress, logActivity } from '../store/progress'
 import { LAB_MODES, buildLab, type LabMode } from './engine'
 
 export default function LabSession({ mode }: { mode: LabMode }) {
@@ -16,11 +16,14 @@ export default function LabSession({ mode }: { mode: LabMode }) {
       color={info.color}
       shade={info.color}
       exitPath="/vocab"
-      onFinish={(accuracy) => ({
-        title: `${info.icon} ${info.title} : terminé !`,
-        message: accuracy >= 0.9 ? 'Niveau C2 en vue. Impressionnant !' : 'Les exercices ratés t’attendent dans « Mes erreurs ».',
-        bonus: 10 + (accuracy === 1 ? 5 : 0),
-      })}
+      onFinish={(accuracy) => {
+        logActivity('lab')
+        return {
+          title: `${info.icon} ${info.title} : terminé !`,
+          message: accuracy >= 0.9 ? 'Niveau C2 en vue. Impressionnant !' : 'Les exercices ratés t’attendent dans « Mes erreurs ».',
+          bonus: 10 + (accuracy === 1 ? 5 : 0),
+        }
+      }}
     />
   )
 }

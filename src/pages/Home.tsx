@@ -3,6 +3,7 @@ import { IconCheck, IconCrown, IconPath, IconStar, IconTrophy } from '../compone
 import Character from '../characters/Character'
 import { CAST } from '../characters/cast'
 import ModuleHeader from '../components/ModuleHeader'
+import TodayCard from '../plan/TodayCard'
 import ProgressRing from '../components/ProgressRing'
 import { UNITS, type UnitMeta } from '../data/units'
 import { CONTENT } from '../data/vocab'
@@ -91,6 +92,8 @@ export default function Home() {
           </span>
         </section>
       </div>
+
+      <TodayCard />
 
       <ModuleHeader title="Chemin de vocabulaire" subtitle="Une leçon à la fois, de B1 jusqu’au C2" color="#6c4cf5" icon={<IconPath size={36} />} tryhard="home" />
 

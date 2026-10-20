@@ -11,7 +11,7 @@ import { playSound } from '../lib/sound'
 import { useStudyTimer } from '../lib/useStudyTimer'
 import { toast } from '../store/events'
 import type { Difficulty } from '../store/types'
-import { addXp, awardBadge, completeLesson, getProgress, recordAnswer } from '../store/progress'
+import { addXp, awardBadge, completeLesson, getProgress, logActivity, recordAnswer } from '../store/progress'
 import { buildLesson } from './engine'
 import type { Exercise } from './types'
 import ExerciseStage, { type StageAnswer } from './ExerciseStage'
@@ -69,6 +69,7 @@ export default function LessonPlayer({ unitId, lesson }: { unitId: string; lesso
       onFinish={(accuracy) => {
         const before = getProgress().lessons[lessonKey]
         completeLesson(lessonKey, accuracy)
+        logActivity('lesson')
         if (exam) awardBadge('first-unit')
         const pct = Math.round(accuracy * 100)
         return {

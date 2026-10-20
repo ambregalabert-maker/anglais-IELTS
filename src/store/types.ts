@@ -40,6 +40,7 @@ export interface DayLog {
   seconds: number
   exercises: number
   correct: number
+  activities?: string[] // activités faites ce jour-là (lesson, review, lab…), pour cocher le plan
 }
 
 export interface LessonProgress {
@@ -101,5 +102,6 @@ export interface Progress {
   essays: EssayRecord[]
   tryhard: TryhardRecord[]
   drafts: Record<string, Record<string, string>> // brouillons (parcours guidé, examen en cours)
+  planChecks: Record<string, string[]> // tâches du plan cochées à la main, par jour
   settings: Settings
 }
