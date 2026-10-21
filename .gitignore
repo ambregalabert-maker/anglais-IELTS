@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Modèle de voix (téléchargé par scripts/audio/setup.sh)
+scripts/audio/model/
+scripts/audio/texts.json

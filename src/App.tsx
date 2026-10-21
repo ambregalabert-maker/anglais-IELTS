@@ -8,7 +8,7 @@ import LessonPlayer from './lesson/LessonPlayer'
 import type { ListeningMode } from './listening/engine'
 import Flashcards from './review/Flashcards'
 import ReviewSession, { type ReviewMode } from './review/ReviewSession'
-import type { Deck } from './review/data'
+import type { Deck } from './review/cards'
 import type { TryhardModule } from './tryhard/generators'
 import { useRoute } from './lib/router'
 import { findModule } from './modules/registry'
@@ -23,6 +23,11 @@ const DrillSession = lazy(() => import('./writing/DrillSession'))
 const EssayReport = lazy(() => import('./writing/EssayReport'))
 const ExamWriter = lazy(() => import('./writing/ExamWriter'))
 const Task2Guided = lazy(() => import('./writing/Task2Guided'))
+const ReadingPassage = lazy(() => import('./reading/ReadingPassage'))
+const SkimDrill = lazy(() => import('./reading/SkimDrill'))
+const ListeningScript = lazy(() => import('./listening/ListeningScript'))
+const SpeakingPart2 = lazy(() => import('./speaking/SpeakingPart2'))
+const SpeakingDrill = lazy(() => import('./speaking/SpeakingDrill'))
 
 function Loading() {
   return (
@@ -52,6 +57,14 @@ function fullScreenPage(route: string) {
   if (listening) return <ListeningSession mode={listening[1] as ListeningMode} />
   const tryhard = route.match(/^\/tryhard\/(home|vocab|writing|listening)$/)
   if (tryhard) return <TryhardPage module={tryhard[1] as TryhardModule} />
+  const reading = route.match(/^\/reading\/(text|skim)\/([\w-]+)$/)
+  if (reading) return reading[1] === 'text' ? <ReadingPassage id={reading[2]} /> : <SkimDrill id={reading[2]} />
+  const script = route.match(/^\/listening\/script\/([\w-]+)$/)
+  if (script) return <ListeningScript id={script[1]} />
+  const card = route.match(/^\/speaking\/card\/([\w-]+)$/)
+  if (card) return <SpeakingPart2 id={card[1]} />
+  const sdrill = route.match(/^\/speaking\/drill\/(part1|develop|paraphrase|part3)$/)
+  if (sdrill) return <SpeakingDrill kind={sdrill[1] as 'part1' | 'develop' | 'paraphrase' | 'part3'} />
   const cards = route.match(/^\/review\/cards\/(.+)$/)
   if (cards) return <Flashcards deck={cards[1] as Deck} />
   return null

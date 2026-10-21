@@ -1,4 +1,6 @@
-// Sons synthétisés avec la Web Audio API : aucun fichier audio, rien de copié.
+// Effets sonores synthétisés avec la Web Audio API (aucun fichier), puis la voix (plus bas).
+
+import { NARRATOR, audioPath, cleanSpeech, speechId, type NeuralVoice } from './voices'
 
 type SoundName = 'correct' | 'wrong' | 'complete' | 'badge' | 'tap' | 'levelUp'
 
@@ -70,10 +72,14 @@ export function playSound(name: SoundName) {
 }
 
 // ---------- Voix (prononciation) ----------
-// Le navigateur charge ses voix en différé : on les écoute arriver, puis on choisit
-// toujours la même (celle réglée dans le profil, ou la meilleure voix britannique trouvée).
+// 1. D'abord les voix neuronales enregistrées à l'avance (public/audio/, voir src/lib/voices.ts) :
+//    humaines, identiques sur tous les appareils, disponibles hors ligne une fois écoutées.
+// 2. Sinon (texte jamais enregistré, ou réglage « voix de l'appareil ») : la synthèse vocale du navigateur.
 
-const voiceConfig = { enabled: true, voiceURI: null as string | null, rate: 0.9 }
+
+export type VoiceEngine = 'neural' | 'device'
+
+const voiceConfig = { enabled: true, voiceURI: null as string | null, rate: 0.9, engine: 'neural' as VoiceEngine }
 let voices: SpeechSynthesisVoice[] = []
 const voiceListeners = new Set<() => void>()
 
@@ -86,6 +92,76 @@ function loadVoices() {
 if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   loadVoices()
   window.speechSynthesis.addEventListener('voiceschanged', loadVoices)
+}
+
+// ----- Index des enregistrements : pour chaque texte, les voix disponibles -----
+let manifest: Map<string, NeuralVoice[]> | null = null
+let manifestPromise: Promise<Map<string, NeuralVoice[]>> | null = null
+
+function loadManifest(): Promise<Map<string, NeuralVoice[]>> {
+  if (manifest) return Promise.resolve(manifest)
+  manifestPromise ??= fetch('./audio/index.json')
+    .then((r) => (r.ok ? r.json() : {}))
+    .catch(() => ({}))
+    .then((data: { clips?: Record<string, string[]>; tracks?: Record<string, string> }) => {
+      const m = new Map<string, NeuralVoice[]>()
+      tracks = data.tracks ?? {}
+      for (const [voice, ids] of Object.entries(data.clips ?? {}))
+        for (const id of ids) {
+          const list = m.get(id)
+          if (list) list.push(voice as NeuralVoice)
+          else m.set(id, [voice as NeuralVoice])
+        }
+      manifest = m
+      return m
+    })
+  return manifestPromise
+}
+
+if (typeof window !== 'undefined') {
+  // On charge l'index dès que le site est prêt, pour que la première écoute soit immédiate
+  window.addEventListener('load', () => setTimeout(() => void loadManifest(), 800))
+}
+
+let tracks: Record<string, string> = {}
+
+/** L'adresse d'une piste audio enregistrée (dialogue du Listening, modèle de Speaking…), ou null. */
+export async function trackUrl(id: string): Promise<string | null> {
+  await loadManifest()
+  return tracks[id] ? `./audio/${tracks[id]}` : null
+}
+
+/** Le fichier à jouer pour ce texte (la voix voulue si elle existe, sinon une autre voix enregistrée). */
+function recordingFor(text: string, wanted: NeuralVoice): string | null {
+  const list = manifest?.get(speechId(text))
+  if (!list?.length) return null
+  return audioPath(text, list.includes(wanted) ? wanted : list[0])
+}
+
+/** Vrai si ce texte a été enregistré (une fois l'index chargé). */
+export function hasRecording(text: string): boolean {
+  return !!manifest?.get(speechId(text))?.length
+}
+
+// Un seul lecteur audio, réutilisé : sur iPhone, il est « débloqué » une fois au premier toucher.
+let player: HTMLAudioElement | null = null
+function getPlayer(): HTMLAudioElement {
+  if (!player) {
+    player = new Audio()
+    player.preload = 'auto'
+  }
+  return player
+}
+if (typeof window !== 'undefined') {
+  const unlock = () => {
+    const a = getPlayer()
+    if (!a.src) {
+      a.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//OEwAAAAAAAAAAAAEluZm8AAAAPAAAABwAAA2AAVVVVVVVVVVVVVVVVVVVxcXFxcXFxcXFxcXFxcY6Ojo6Ojo6Ojo6Ojo6Oqqqqqqqqqqqqqqqqqqqqx8fHx8fHx8fHx8fHx8fj4+Pj4+Pj4+Pj4+Pj4///////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQEIAAAAAAAAANgmVBi7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//NExAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExFMAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKYAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKwAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKwAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+      a.play().then(() => a.pause()).catch(() => {})
+    }
+    window.removeEventListener('pointerdown', unlock)
+  }
+  window.addEventListener('pointerdown', unlock)
 }
 
 // Voix gadget ou robotiques présentes sur Apple, à ne jamais choisir automatiquement
@@ -107,7 +183,7 @@ export function voiceScore(v: SpeechSynthesisVoice): number {
   return s
 }
 
-/** Les voix anglaises disponibles, de la meilleure à la moins bonne. */
+/** Les voix anglaises de l'appareil, de la meilleure à la moins bonne. */
 export function englishVoices(): SpeechSynthesisVoice[] {
   return [...voices].sort((a, b) => voiceScore(b) - voiceScore(a))
 }
@@ -117,13 +193,9 @@ export function onVoicesChanged(l: () => void): () => void {
   return () => voiceListeners.delete(l)
 }
 
-export function configureVoice(cfg: { enabled: boolean; voiceURI: string | null; rate: number }) {
+export function configureVoice(cfg: { enabled: boolean; voiceURI: string | null; rate: number; engine: VoiceEngine }) {
   Object.assign(voiceConfig, cfg)
-  if (!cfg.enabled && 'speechSynthesis' in window) window.speechSynthesis.cancel()
-}
-
-export function isVoiceEnabled(): boolean {
-  return voiceConfig.enabled && 'speechSynthesis' in window
+  if (!cfg.enabled) stopSpeaking()
 }
 
 function currentVoice(): SpeechSynthesisVoice | null {
@@ -134,17 +206,18 @@ function currentVoice(): SpeechSynthesisVoice | null {
   return englishVoices()[0] ?? null
 }
 
-// Devine si une voix est masculine ou féminine d'après son nom (sert à varier les voix des personnages)
+// Devine si une voix de l'appareil est masculine ou féminine d'après son nom
 const MALE = /\b(daniel|arthur|oliver|thomas|ryan|george|alex|aaron|fred|gordon|lee|rishi|tom|guy|eric|brian|christopher|james|malcolm|william|liam|noah|male)\b/i
 const FEMALE = /\b(kate|serena|martha|stephanie|libby|sonia|maisie|samantha|karen|moira|tessa|fiona|victoria|allison|ava|susan|zira|hazel|jenny|aria|emma|catherine|nicky|amy|olivia|female)\b/i
 
 export type VoiceGender = 'm' | 'f'
 
 export interface VoiceProfile {
-  gender?: VoiceGender // voix préférée (si l'appareil en a une)
-  pitch?: number // hauteur : 1 = normale
-  rate?: number // multiplie la vitesse réglée dans le profil
-  usePreferred?: boolean // utiliser la voix choisie dans les réglages
+  neural?: NeuralVoice // voix enregistrée du personnage
+  gender?: VoiceGender // repli : voix de l'appareil préférée
+  pitch?: number // repli : hauteur (1 = normale)
+  rate?: number // repli : multiplie la vitesse réglée dans le profil
+  usePreferred?: boolean // repli : utiliser la voix choisie dans les réglages
 }
 
 function voiceFor(profile: VoiceProfile): SpeechSynthesisVoice | null {
@@ -155,28 +228,85 @@ function voiceFor(profile: VoiceProfile): SpeechSynthesisVoice | null {
 
 interface SpeakOptions {
   force?: boolean // même si la voix est coupée (bouton « Tester »)
-  voiceURI?: string
+  voiceURI?: string // forcer une voix de l'appareil
+  voice?: NeuralVoice // forcer une voix enregistrée
   profile?: VoiceProfile
+  slow?: boolean // plus lentement (dictées)
   onStart?: () => void
   onEnd?: () => void
 }
 
+let speakToken = 0
+let endCurrent: (() => void) | null = null
+
+/** Arrête la voix en cours (enregistrement ou synthèse). */
+export function stopSpeaking() {
+  speakToken++
+  if (player) player.pause()
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+  const end = endCurrent
+  endCurrent = null
+  end?.()
+}
+
 /** Prononciation d'un mot ou d'une phrase, éventuellement avec la voix d'un personnage. */
-export function speak(text: string, { force = false, voiceURI, profile, onStart, onEnd }: SpeakOptions = {}) {
-  if (!('speechSynthesis' in window) || (!voiceConfig.enabled && !force)) return
+export function speak(text: string, opts: SpeakOptions = {}) {
+  if (!opts.force && !voiceConfig.enabled) return
+  stopSpeaking()
+  const token = speakToken
+  const clean = cleanSpeech(text)
+  if (voiceConfig.engine === 'neural' && !opts.voiceURI) {
+    const play = () => {
+      if (token !== speakToken) return
+      const src = recordingFor(clean, opts.voice ?? opts.profile?.neural ?? NARRATOR)
+      if (src) playRecording(src, opts)
+      else speakDevice(clean, opts)
+    }
+    if (manifest) play()
+    else void loadManifest().then(play)
+    return
+  }
+  speakDevice(clean, opts)
+}
+
+function playRecording(src: string, { slow, onStart, onEnd }: SpeakOptions) {
+  const a = getPlayer()
+  a.src = src
+  // Vitesse : 0,9 dans les réglages = vitesse normale de l'enregistrement
+  a.playbackRate = (voiceConfig.rate / 0.9) * (slow ? 0.72 : 1)
+  a.preservesPitch = true
+  const done = () => {
+    a.onended = a.onerror = null
+    if (endCurrent === done) endCurrent = null
+    onEnd?.()
+  }
+  endCurrent = done
+  a.onended = done
+  a.onerror = done
+  a.play()
+    .then(() => onStart?.())
+    .catch(done)
+}
+
+function speakDevice(text: string, { voiceURI, profile, slow, onStart, onEnd }: SpeakOptions) {
+  if (!('speechSynthesis' in window)) return onEnd?.()
   const synth = window.speechSynthesis
   if (voices.length === 0) loadVoices()
-  synth.cancel()
   const u = new SpeechSynthesisUtterance(text)
   const voice = (voiceURI && voices.find((v) => v.voiceURI === voiceURI)) || (profile ? voiceFor(profile) : currentVoice())
   if (voice) u.voice = voice
   u.lang = voice?.lang ?? 'en-GB'
-  u.rate = voiceConfig.rate * (profile?.rate ?? 1)
+  u.rate = voiceConfig.rate * (profile?.rate ?? 1) * (slow ? 0.72 : 1)
   u.pitch = profile?.pitch ?? 1
   if (onStart) u.onstart = onStart
   if (onEnd) {
-    u.onend = onEnd
-    u.onerror = onEnd
+    const done = () => {
+      if (endCurrent === done) endCurrent = null
+      onEnd()
+    }
+    endCurrent = done
+    u.onend = done
+    u.onerror = done
   }
   synth.speak(u)
 }

@@ -52,6 +52,16 @@ export default function VocabLab() {
         ))}
       </section>
 
+      <button
+        className="btn btn-review btn-block flash-shortcut"
+        onClick={() => {
+          playSound('tap')
+          navigate('/review/flashcards')
+        }}
+      >
+        🃏 Réviser en flashcards
+      </button>
+
       <h2 className="section-title">Glossaire ({ALL_WORDS.length} mots)</h2>
       <section className="card glossary">
         <input className="search" placeholder="Chercher un mot (anglais ou français)…" value={query} onChange={(e) => setQuery(e.target.value)} />

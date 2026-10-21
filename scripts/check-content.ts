@@ -10,6 +10,15 @@ import { buildGrammar, buildTask1Drills } from '../src/writing/engine'
 import { GRAMMAR } from '../src/data/writing/grammar'
 import { LISTENING_MODES, buildListening } from '../src/listening/engine'
 import { TRAPS } from '../src/data/listening'
+import { PASSAGES } from '../src/data/reading'
+import { LISTENING_SCRIPTS } from '../src/data/listeningScripts'
+import { PART2_CARDS } from '../src/data/speaking'
+import { ANALYSE_SET } from '../src/data/writing/method'
+import { TASK2_TOPICS } from '../src/data/writing/topics'
+import { TASK1_CHARTS } from '../src/data/writing/task1'
+import { NEURAL_VOICES } from '../src/lib/voices'
+import { TOOL_CARDS } from '../src/review/cards'
+import type { QuestionSet } from '../src/practice/types'
 
 let problems = 0
 const warn = (msg: string) => {
@@ -107,6 +116,47 @@ for (const m of LISTENING_MODES)
       if (!exerciseFromKey(e.key, 'normal')) warn(`${e.key} : impossible à recréer`)
     }
 console.log(`${lCount} exercices Listening générés et vérifiés.`)
+
+// ---------- Séries de questions (Reading, Listening, Writing) ----------
+function checkSet(where: string, set: QuestionSet) {
+  if (!set.items.length) warn(`${where} : série vide`)
+  set.items.forEach((it, i) => {
+    const tag = `${where} q${i + 1}`
+    const opts = (it.options ?? set.options ?? []).map((o) => o.key)
+    if (new Set(opts).size !== opts.length) warn(`${tag} : lettres d'options en double`)
+    if (set.type === 'tfng' && !['True', 'False', 'Not Given'].includes(it.answer as string)) warn(`${tag} : réponse TFNG invalide`)
+    if (set.type === 'ynng' && !['Yes', 'No', 'Not Given'].includes(it.answer as string)) warn(`${tag} : réponse YNNG invalide`)
+    if ((set.type === 'match' || set.type === 'mcq') && !opts.includes(it.answer as string)) warn(`${tag} : réponse absente des options`)
+    if (set.type === 'mcq2' && (!Array.isArray(it.answer) || it.answer.length !== 2 || it.answer.some((a) => !opts.includes(a)))) warn(`${tag} : il faut deux réponses parmi les options`)
+    if (set.type === 'gap' && (typeof it.answer !== 'string' || !it.answer.trim())) warn(`${tag} : réponse vide`)
+  })
+}
+let setCount = 0
+for (const p of PASSAGES) {
+  const labels = p.paragraphs.map((x) => x.label)
+  if (new Set(labels).size !== labels.length) warn(`texte ${p.id} : paragraphes en double`)
+  for (const s of p.sets) {
+    checkSet(`reading ${p.id}/${s.id}`, s)
+    setCount++
+  }
+}
+for (const sc of LISTENING_SCRIPTS) {
+  for (const l of sc.lines) if (!sc.voices[l.who] || !NEURAL_VOICES[sc.voices[l.who]]) warn(`listening ${sc.id} : pas de voix pour « ${l.who} »`)
+  for (const s of sc.sets) {
+    checkSet(`listening ${sc.id}/${s.id}`, s)
+    setCount++
+  }
+  if (sc.plan) for (const it of sc.sets[0].items) if (!sc.plan.zones.some((z) => z.key === it.answer)) warn(`listening ${sc.id} : la zone ${it.answer} n'est pas sur le plan`)
+}
+checkSet('writing w3', ANALYSE_SET)
+console.log(`${setCount + 1} séries de questions vérifiées.`)
+
+// ---------- Writing, Speaking, flashcards ----------
+for (const t of TASK2_TOPICS) if (t.model.split(/\s+/).length < 250) warn(`essai modèle ${t.id} : moins de 250 mots`)
+for (const c of TASK1_CHARTS) if (c.model.split(/\s+/).length < 150) warn(`modèle Task 1 ${c.id} : moins de 150 mots`)
+for (const c of PART2_CARDS) if (c.points.length < 3 || !c.part3.length) warn(`carte Part 2 ${c.id} : incomplète`)
+const cardIds = Object.values(TOOL_CARDS).flat().map((c) => c.id)
+if (new Set(cardIds).size !== cardIds.length) warn('flashcards : identifiants en double')
 
 console.log(`\n${total} mots dans ${Object.keys(CONTENT).length} unités. ${problems} problème(s).`)
 process.exit(problems ? 1 : 0)

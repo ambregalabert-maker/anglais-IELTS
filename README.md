@@ -13,11 +13,30 @@ Pense à l'exporter de temps en temps (Profil → Sauvegarde) pour ne rien perdr
 |---|---|
 | **Chemin** | 18 unités : les 6 de tes cours, puis 12 thèmes IELTS (B2 → C1 → C2), 541 mots, 7 types d'exercices, évaluation de fin d'unité, niveaux Normale / Difficile / Expert. Bloc « Aujourd'hui » avec le plan de préparation |
 | **Vocab Lab** | Familles de mots, collocations, paraphrase, synonymes par niveau, registre formel, expressions idiomatiques, orthographe (dictée), glossaire avec recherche |
-| **Writing** | Task 2 guidée (les 9 étapes du guide), 21 sujets avec essai modèle, modes examen Task 1 et Task 2 chronométrés, vérifications automatiques surlignées, « Copier pour correction », Task 1 sur graphiques, grammaire du Booklet 2 |
-| **Listening** | Lien vers de vrais tests audio, stratégies d'anticipation (prédire, paraphrases, pièges, consignes), dictées de noms, numéros, dates et prix, fiche de conseils |
-| **Révisions** | Répétition espacée (5 boîtes), « Mes erreurs », flashcards par paquet |
+| **Reading** | 7 textes (dont les 2 de ta méthode), 9 types de questions avec leur méthode, chrono par texte, chrono-skimming, chasse aux paraphrases, carnet de paraphrases |
+| **Writing** | Méthode et critères, Task 2 guidée (les 9 étapes du guide), 25 sujets avec essai modèle, analyse de sujet, reformulation, erreurs des francophones, connecteurs, modes examen Task 1 et Task 2 chronométrés, vérifications automatiques surlignées, « Copier pour correction », Task 1 sur graphiques, grammaire du Booklet 2 |
+| **Listening** | 10 exercices audio au format examen (L1 à L7 de ta méthode + 3 originaux), dialogues à plusieurs voix et accents, une seule écoute ou mode entraînement, plan à étiqueter, script après correction. Méthode par type de question, tableau des pièges, vrais tests audio, stratégies d'anticipation (prédire, paraphrases, pièges, consignes), dictées de noms, numéros, dates et prix, fiche de conseils |
+| **Speaking** | Part 1 (A-R-E), cartes de Part 2 avec 1 min de préparation et 2 min d’enregistrement, Part 3, « développer une réponse », « paraphraser un mot oublié », prononciation, réponses modèles lues, auto-évaluation sur les 4 critères |
+| **Révisions** | Répétition espacée (5 boîtes), « Mes erreurs », et l’**espace Flashcards** : paquets par thème et par niveau, collocations, registre, connecteurs, prononciation, favoris ⭐, dans les deux sens ou à l’écoute |
+| **L’examen** | Le format 2026 et une estimation de ta note (depuis le bloc « Aujourd’hui » → Voir le plan complet) |
 | **Profil** | Statistiques, badges, réglages (date d'examen, objectif du jour, difficulté, voix, sons, thème), export / import |
 | **Tryhard** | Dans chaque module : séance longue et adaptative, Pomodoro caché en option, bilan avec points faibles |
+
+## Les voix
+
+Les phrases sont lues par des **voix neuronales enregistrées à l’avance** (modèle libre Kokoro, voix britanniques
+et américaines) : elles sont identiques sur tous les appareils et marchent hors ligne une fois écoutées.
+Les fichiers sont dans `public/audio/`. Profil → Voix permet de revenir aux voix de l’appareil.
+
+Après avoir ajouté du contenu, on enregistre les nouvelles phrases (il faut Python 3 et ffmpeg) :
+
+```bash
+bash scripts/audio/setup.sh                               # une seule fois : télécharge le modèle de voix
+npm run audio:texts                                       # liste les phrases à enregistrer
+scripts/audio/model/venv/bin/python scripts/audio/generate.py   # enregistre seulement les nouvelles
+```
+
+Une phrase pas encore enregistrée est lue par la voix de l’appareil.
 
 ## Mettre le site en ligne (gratuit, une seule fois)
 
@@ -64,11 +83,14 @@ npm run check:content  # vérifie tout le contenu (doublons, réponses absentes�
 | ajouter un sujet Task 2 (avec essai modèle) | `src/data/writing/topics.ts` |
 | ajouter un graphique Task 1 | `src/data/writing/task1.ts` |
 | ajouter de la grammaire | `src/data/writing/grammar.ts` |
-| modifier le Listening | `src/data/listening.ts` |
+| modifier le Listening | `src/data/listening.ts` (stratégies) et `src/data/listeningScripts.ts` (exercices audio) |
+| ajouter un texte de Reading | `src/data/reading.ts` |
+| modifier le Speaking | `src/data/speaking.ts` |
+| changer la voix d’un personnage | `src/characters/cast.ts` (voix disponibles : `src/lib/voices.ts`) |
 | modifier le plan de préparation | `src/plan/plan.ts` |
 | ajouter un badge | `src/data/badges.ts` |
 | ajouter un personnage | `src/characters/cast.ts` et `src/characters/Character.tsx` |
-| ajouter un module (ex. Speaking) | une page dans `src/pages/`, puis une ligne dans `src/modules/registry.tsx` |
+| ajouter un module | une page dans `src/pages/`, puis une ligne dans `src/modules/registry.tsx` |
 | changer les couleurs | `src/styles/global.css` (en haut du fichier) |
 
 Après une modification du contenu, lance `npm run check:content` : le script signale les erreurs
@@ -86,3 +108,4 @@ cette vérification et s'arrête s'il y a un problème.
 - [x] Étape 7 : mode Tryhard dans chaque module (flux adaptatif, Pomodoro caché, bilan)
 - [x] Étape 8 : plan de préparation (4 phases) et bloc « Aujourd'hui »
 - [x] Étape 9 : finitions, appli installable et hors ligne (PWA), mise en ligne automatique
+- [x] Étape 10 : ta « Méthode IELTS » (Reading, Speaking, Listening audio, Writing), voix neuronales, espace Flashcards, page de l’examen

@@ -4,6 +4,7 @@
 
 export type ThemePref = 'system' | 'light' | 'dark'
 export type Difficulty = 'normal' | 'hard' | 'expert'
+export type FlashDir = 'en' | 'fr' | 'audio' // anglais → français, français → anglais, écoute seule
 
 export interface Settings {
   examDate: string // AAAA-MM-JJ
@@ -12,6 +13,9 @@ export interface Settings {
   voice: boolean // prononciation des mots et des phrases
   voiceURI: string | null // voix choisie (null = la meilleure trouvée automatiquement)
   voiceRate: number // vitesse de la voix
+  voiceEngine: 'neural' | 'device' // voix enregistrées (humaines) ou voix de l'appareil
+  flashDir: FlashDir // sens des flashcards
+  flashSize: number // nombre de cartes par paquet
   difficulty: Difficulty
   theme: ThemePref
   pomodoro: PomodoroSettings
@@ -75,6 +79,14 @@ export interface MistakeStat {
   resolved: boolean // repassé juste depuis
 }
 
+/** Meilleur score d'une série de questions (Reading, Listening…). */
+export interface PracticeStat {
+  best: number
+  total: number
+  last: string // date
+  tries: number
+}
+
 /** Un essai enregistré (mode examen ou parcours guidé). */
 export interface EssayRecord {
   id: string
@@ -103,5 +115,8 @@ export interface Progress {
   tryhard: TryhardRecord[]
   drafts: Record<string, Record<string, string>> // brouillons (parcours guidé, examen en cours)
   planChecks: Record<string, string[]> // tâches du plan cochées à la main, par jour
+  favorites: string[] // flashcards marquées d'une étoile (id de mot ou de carte)
+  practice: Record<string, PracticeStat> // séries de questions Reading / Listening / Speaking
+  paraphrases: { question: string; text: string }[] // carnet de paraphrases (Reading)
   settings: Settings
 }

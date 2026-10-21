@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { IconPen } from '../components/Icons'
 import ModuleHeader from '../components/ModuleHeader'
 import { GRAMMAR } from '../data/writing/grammar'
+import { ANALYSE_SET, COMPARISON_PHRASES, DOC_TYPES, PEEL, PROCESS_PHRASES, REPHRASE, TASK1_STEPS, TASK2_STEPS, TASK2_STRUCTURES, TREND_VOCAB, WRITING_CRITERIA } from '../data/writing/method'
+import QuestionSetView from '../practice/QuestionSetView'
+import { recordPractice } from '../store/progress'
 import { TASK1_CHARTS } from '../data/writing/task1'
 import { TASK2_TOPICS, TASK2_TYPES, type Task2Type } from '../data/writing/topics'
 import { formatLongDate } from '../lib/dates'
@@ -47,6 +50,165 @@ export default function Writing() {
           <b>Grammaire</b>
           <small>Les temps, comparatifs, too / enough (Booklet 2)</small>
         </button>
+      </section>
+
+      <h2 className="section-title">Méthode et critères</h2>
+      <section className="card method-list">
+        <p className="muted">
+          La Task 2 compte deux fois plus que la Task 1 : environ 40 minutes pour elle, 20 pour la Task 1. Chaque tâche est notée sur 4 critères à poids égal (25 % chacun).
+        </p>
+        <div className="info-table-wrap">
+          <table className="info-table">
+            <thead>
+              <tr>
+                <th>Critère (25 %)</th>
+                <th>Ce que l’examinateur vérifie</th>
+              </tr>
+            </thead>
+            <tbody>
+              {WRITING_CRITERIA.map((c) => (
+                <tr key={c.name}>
+                  <td>
+                    <b lang="en">{c.name}</b>
+                  </td>
+                  <td>{c.check}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <details className="glossary-item">
+          <summary>
+            <b className="grow">Task 1 Academic : la méthode et les types de documents</b>
+          </summary>
+          <div className="glossary-body">
+            <p>150 mots, 20 minutes. On décrit, jamais d’opinion.</p>
+            <ol>
+              {TASK1_STEPS.map((s) => (
+                <li key={s.title}>
+                  <b>{s.title}</b> : {s.text}
+                </li>
+              ))}
+            </ol>
+            <div className="info-table-wrap">
+              <table className="info-table">
+                <thead>
+                  <tr>
+                    <th>Document</th>
+                    <th>Ce qu’il faut décrire</th>
+                    <th>Temps verbal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {DOC_TYPES.map((d) => (
+                    <tr key={d.doc}>
+                      <td>
+                        <b lang="en">{d.doc}</b>
+                      </td>
+                      <td>{d.what}</td>
+                      <td>{d.tense}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+        <details className="glossary-item">
+          <summary>
+            <b className="grow">Vocabulaire des tendances (Task 1)</b>
+          </summary>
+          <div className="glossary-body">
+            <div className="info-table-wrap">
+              <table className="info-table" lang="en">
+                <thead>
+                  <tr>
+                    <th>Sens</th>
+                    <th>Verbes</th>
+                    <th>Noms</th>
+                    <th>Adverbes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {TREND_VOCAB.map((v) => (
+                    <tr key={v.sense}>
+                      <td lang="fr">
+                        <b>{v.sense}</b>
+                      </td>
+                      <td>{v.verbs}</td>
+                      <td>{v.nouns}</td>
+                      <td>{v.adverbs || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p>
+              <b>Comparer et approximer :</b> <span lang="en">{COMPARISON_PHRASES}</span>.
+            </p>
+            <p>
+              <b>Process :</b> <span lang="en">{PROCESS_PHRASES}</span>.
+            </p>
+          </div>
+        </details>
+        <details className="glossary-item">
+          <summary>
+            <b className="grow">Task 2 : le plan selon le type de sujet, et la méthode PEEL</b>
+          </summary>
+          <div className="glossary-body">
+            <ol>
+              {TASK2_STEPS.map((s) => (
+                <li key={s.title}>
+                  <b>{s.title}</b> : {s.text}
+                </li>
+              ))}
+            </ol>
+            <div className="info-table-wrap">
+              <table className="info-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Reconnaître la consigne</th>
+                    <th>Plan conseillé</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {TASK2_STRUCTURES.map((t) => (
+                    <tr key={t.type}>
+                      <td>
+                        <b>{t.type}</b>
+                      </td>
+                      <td lang="en">{t.prompt}</td>
+                      <td>{t.plan}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p>
+              <b>Construire un paragraphe (PEEL) :</b>
+            </p>
+            <ul className="peel">
+              {PEEL.map((x) => (
+                <li key={x.name}>
+                  <b className="peel-letter">{x.letter}</b> <b lang="en">{x.name}</b> : {x.text}
+                </li>
+              ))}
+            </ul>
+            <p className="flash-note">💡 Erreur n° 1 : ne répondre qu’à une moitié de la question. Les phrases toutes faites apprises par cœur ne rapportent rien.</p>
+          </div>
+        </details>
+      </section>
+
+      <h2 className="section-title">Analyser un sujet (W3)</h2>
+      <QuestionSetView set={ANALYSE_SET} onChecked={(r) => recordPractice('write:w3', r.score, r.total, 'writing')} />
+
+      <h2 className="section-title">Reformuler sans changer le sens (W4)</h2>
+      <section className="card rephrase">
+        <p className="muted">Écris ta reformulation, puis compare avec un exemple. C’est la base de l’introduction (Task 1 et Task 2) et du Reading.</p>
+        {REPHRASE.map((r) => (
+          <RephraseItem key={r.original} original={r.original} model={r.model} />
+        ))}
       </section>
 
       <h2 className="section-title">Task 2 · Parcours guidé</h2>
@@ -156,6 +318,28 @@ export default function Writing() {
             )
           })}
         </section>
+      )}
+    </div>
+  )
+}
+
+function RephraseItem({ original, model }: { original: string; model: string }) {
+  const [value, setValue] = useState('')
+  const [shown, setShown] = useState(false)
+  return (
+    <div className="rephrase-item">
+      <p lang="en">
+        <b>{original}</b>
+      </p>
+      <textarea rows={2} lang="en" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Ta reformulation…" />
+      {shown ? (
+        <p className="flash-note" lang="en">
+          Exemple : {model}
+        </p>
+      ) : (
+        <button className="chip" onClick={() => setShown(true)}>
+          Voir un exemple
+        </button>
       )}
     </div>
   )

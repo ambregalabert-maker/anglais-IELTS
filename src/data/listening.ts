@@ -162,3 +162,87 @@ export const TIPS: { title: string; items: string[] }[] = [
     ],
   },
 ]
+
+// ---------- Méthode (ta méthode IELTS) ----------
+export const LISTENING_SECTIONS = [
+  { section: 1, context: 'Dialogue quotidien (réservation, inscription)', types: 'Formulaire, notes, tableau' },
+  { section: 2, context: 'Monologue quotidien (visite guidée, annonce)', types: 'QCM, plan ou carte, matching' },
+  { section: 3, context: 'Discussion entre étudiants et tuteur', types: 'QCM, matching, phrases à compléter' },
+  { section: 4, context: 'Cours magistral', types: 'Notes ou résumé à compléter' },
+]
+
+export const LISTENING_STEPS = [
+  { title: 'Lire les consignes', text: 'Repère la limite de mots (ex. « NO MORE THAN TWO WORDS AND/OR A NUMBER »). Un mot de trop = réponse fausse.' },
+  { title: 'Prédire', text: 'Pour chaque blanc, devine le type de réponse : nom, nombre, date, adjectif.' },
+  { title: 'Souligner les mots-clés', text: 'Et penser à leurs synonymes : la question dit « children », l’audio dit « kids ».' },
+  { title: 'Se méfier des pièges', text: 'Le locuteur se corrige (« Tuesday… no, sorry, Thursday ») : la bonne réponse vient souvent après.' },
+  { title: 'Ne jamais bloquer', text: 'Une réponse ratée, on passe à la suivante. Ne jamais laisser de blanc.' },
+]
+
+export const LISTENING_METHODS: { title: string; tips: string[] }[] = [
+  {
+    title: 'Form / note / table completion',
+    tips: [
+      'Avant l’audio : lis le titre du formulaire, puis note à côté de chaque blanc le type attendu (nombre, nom, date, adjectif).',
+      'Regarde les mots autour du blanc : « £___ » = un prix ; « on ___ » = un jour ou une date ; « a ___ » = un nom singulier commençant par une consonne.',
+      'Pendant l’audio, les réponses arrivent dans l’ordre : garde le doigt (ou le curseur) sur la question en cours et jette un œil à la suivante.',
+      'Après : vérifie l’orthographe, le singulier ou le pluriel, et la limite de mots. Les majuscules ne comptent pas, l’orthographe oui.',
+    ],
+  },
+  {
+    title: 'Multiple choice',
+    tips: [
+      'Lis la question d’abord et reformule-la dans ta tête, puis survole les options en soulignant ce qui les différencie.',
+      'Les trois options sont souvent toutes mentionnées : les mauvaises sont rejetées, conditionnelles (« if… ») ou concernent le passé.',
+      'Pour « Choose TWO letters », barre au fur et à mesure les options exclues. L’ordre des deux réponses n’a pas d’importance.',
+    ],
+  },
+  {
+    title: 'Matching',
+    tips: [
+      'Une liste de personnes ou de lieux à associer à des options : les questions suivent l’ordre de l’audio, pas les options.',
+      'Mémorise les options avant l’écoute : elles seront paraphrasées. Une option peut parfois servir deux fois (vérifie la consigne).',
+    ],
+  },
+  {
+    title: 'Map / plan / diagram labelling',
+    tips: [
+      'Repère l’entrée, le « You are here » et le nord. Imagine que tu marches dans le plan avec la personne qui parle.',
+      'Vocabulaire de position : opposite, next to, adjacent to, behind, in front of, to the left / right of, at the far end, in the corner, just past, beyond, between, across from, clockwise, north-east.',
+      'Suis la personne pas à pas : chaque réponse part souvent du lieu précédent.',
+    ],
+  },
+  {
+    title: 'Sentence completion, short answers',
+    tips: [
+      'Le mot manquant doit rendre la phrase grammaticalement correcte : un nom, un verbe en -ing, un pluriel ?',
+      'Pour les short answers, ne réécris pas la question : seulement le ou les mots demandés.',
+    ],
+  },
+  {
+    title: 'Summary / flow-chart completion (sections 3-4)',
+    tips: [
+      'Lis tout le résumé avant l’audio pour comprendre la logique. Les connecteurs (however, as a result) annoncent les idées.',
+      'Section 4 : un seul locuteur, sans pause au milieu. Les annonces du professeur (« Now, let’s turn to… ») servent de repères.',
+    ],
+  },
+]
+
+export const LISTENING_TRAP_TABLE = [
+  { trap: 'Correction', audio: '« It’s on the 15th… no, sorry, the 16th »', answer: '16th' },
+  { trap: 'Distracteur', audio: '« I thought about the bus, but I’ll drive »', answer: 'car / driving' },
+  { trap: 'Épellation', audio: '« That’s G-R-A-H-A-M »', answer: 'Graham' },
+  { trap: 'Doubles lettres', audio: '« double S »', answer: 'ss' },
+  { trap: 'Chiffres proches', audio: 'fifteen / fifty, thirteen / thirty', answer: 'Écoute l’accent : fif-TEEN / FIF-ty' },
+  { trap: 'Nombres à l’anglaise', audio: '« double five » = 55 ; « oh » = 0', answer: '0755…' },
+  { trap: 'Prix et dates', audio: '« a hundred and twenty pounds »', answer: '120' },
+  { trap: 'Pluriel', audio: '« two separate entrances »', answer: 'entrances' },
+  { trap: 'Limite de mots', audio: 'ONE WORD ONLY → « the morning session »', answer: 'morning' },
+]
+
+export const LISTENING_ROUTINE = [
+  'Fais un exercice en conditions réelles : une seule écoute.',
+  'Corrige, puis réécoute avec le script pour repérer chaque réponse et sa paraphrase.',
+  'Note dans un carnet les pièges rencontrés et les paires de synonymes.',
+  '15 minutes par jour de podcasts ou de vidéos avec des accents variés (britannique, australien, nord-américain).',
+]

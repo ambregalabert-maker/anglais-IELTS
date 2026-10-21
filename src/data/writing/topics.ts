@@ -294,4 +294,58 @@ On the other hand, museums are expensive to run, as they must maintain buildings
 
 To conclude, free entry makes culture accessible to all and encourages education, although it places a financial burden on taxpayers. In my opinion, I largely agree that museums should be free for local residents, while tourists could reasonably be asked to pay. In future, a combination of public funding, donations and charges for special exhibitions could keep museums both accessible and financially sustainable.`,
   },
+  // Sujets de ta « Méthode IELTS » (W3 et W7). Ces modèles annoncent la position dès l'introduction,
+  // puis la confirment dans la conclusion, comme le demande la grille officielle.
+  {
+    id: 'wfh-both-views',
+    type: 'discuss',
+    theme: 'Work',
+    question: 'Some people believe that working from home benefits both employees and companies. Others think it has more disadvantages. Discuss both views and give your own opinion.',
+    model: `Working from home has become far more common in recent years, and opinions are divided on whether it helps or harms employees and businesses. While I accept that remote work has some drawbacks, I believe that its benefits are greater.
+
+On the one hand, those who criticise working from home argue that it weakens teamwork. When colleagues rarely meet in person, it can be harder to share ideas informally or to train new staff. Some employees also find it difficult to separate their professional and private lives, which may lead to longer working hours and stress. Younger employees, in particular, may miss the chance to learn by watching more experienced colleagues at work. For managers, monitoring performance can be more complicated when the team is spread across different locations.
+
+On the other hand, remote work offers clear advantages to both sides. Employees save time and money by not commuting, and many report that they can concentrate better at home, away from the interruptions of an open-plan office. For companies, the benefits are financial as well as practical: they can reduce the cost of office space and recruit talented people who live far from the city centre. A software firm, for instance, could hire developers from anywhere in the country rather than only from one region.
+
+In conclusion, although working from home can reduce face-to-face contact and blur the line between work and personal life, these problems can be managed through regular meetings and clear rules. In my view, the gains in productivity, flexibility and cost make remote work a positive development overall.`,
+  },
+  {
+    id: 'primary-languages',
+    type: 'discuss',
+    theme: 'Education',
+    question: 'Some believe that children should start learning a foreign language at primary school. Others think they should wait until secondary school. Discuss both views and give your opinion.',
+    model: `Opinions differ on when children should begin learning a foreign language. While some argue that secondary school is early enough, I believe that starting at primary school is clearly the better option.
+
+Those who favour waiting until secondary school make some valid points. Primary teachers are not always trained to teach languages, and poorly taught lessons may give children a negative impression of the subject. In addition, young pupils already have a great deal to learn, from reading and writing to basic mathematics, and adding another subject could overload the timetable. Some parents also worry that learning two languages at once might confuse very young children. From this perspective, it seems more efficient to introduce languages when children are older, more mature and able to understand grammar explicitly.
+
+However, I find the arguments for an early start more convincing. Young children are generally less self-conscious than teenagers, so they are more willing to imitate new sounds and make mistakes, which is essential for developing good pronunciation. Early exposure also gives pupils many more years of practice before they leave school, and the total amount of contact with a language is arguably more important than the age at which grammar is studied. In countries such as Sweden or the Netherlands, where English is introduced at a young age, a large proportion of adults speak it confidently.
+
+In conclusion, although teaching languages to young children requires well-trained teachers and a carefully planned timetable, these challenges can be overcome. In my view, the benefits of an early start, particularly for pronunciation and long-term fluency, make primary school the right time to begin.`,
+  },
+  {
+    id: 'e-scooters',
+    type: 'advantages',
+    theme: 'Cities',
+    question: 'More and more people are using electric scooters in cities. Do the advantages outweigh the disadvantages?',
+    model: `Electric scooters have become a familiar sight in many cities, both as private vehicles and through rental schemes. Although they offer some real benefits, I believe that their disadvantages currently outweigh them.
+
+There is no doubt that e-scooters can be useful. They are a quick and cheap way to cover short distances, particularly the final kilometre between a station and an office, which might otherwise be travelled by car or taxi. Rental apps also allow users to pick up and leave a scooter almost anywhere in the city centre. Because they run on electricity, they produce no exhaust fumes in the street, and they take up far less space than cars, both on the road and when parked. For young commuters who cannot afford a car, they can also make it easier to reach jobs in areas that are poorly served by public transport.
+
+However, these advantages are undermined by serious problems. The most significant is safety: riders often travel at high speed without helmets, and accidents involving pedestrians have become a concern in a number of cities. Rental scooters are also frequently abandoned on pavements, creating obstacles for elderly and disabled people. Moreover, many scooter journeys replace walking or cycling rather than car trips, which means that the environmental gains are smaller than they first appear. Paris, for instance, banned rental e-scooters in 2023 after residents voted against them.
+
+In conclusion, e-scooters provide a convenient form of transport for short urban journeys, but their impact on safety, public space and the environment is more negative than positive. Unless they are much more strictly regulated, their drawbacks will continue to outweigh their benefits.`,
+  },
+  {
+    id: 'young-outdoors',
+    type: 'problem',
+    theme: 'Health',
+    question: 'In many countries, young people are spending less time outdoors. What are the causes, and what can be done?',
+    model: `In many countries, young people now spend far less time outdoors than previous generations did. In my view, this is mainly the result of technology and changes in urban life, and it can be addressed through action by both families and local authorities.
+
+The most obvious cause is the growing appeal of screens. Smartphones, video games and streaming services offer constant entertainment at home, and many teenagers prefer to socialise online rather than meet in parks or on the street. A second reason is parental anxiety. Concerns about traffic and personal safety mean that children are often not allowed to play outside without supervision, and busy parents may not have time to accompany them. Finally, in many cities, green spaces have been reduced by new housing and roads, so there are simply fewer safe places for young people to go.
+
+Several measures could reverse this trend. Schools could make outdoor activities a regular part of the timetable, for example by holding some lessons outside or organising weekly sports and nature clubs. Local councils, meanwhile, should protect and improve parks and create car-free streets near schools, so that parents feel more confident about letting their children walk or cycle independently. At home, families could agree on screen-free periods at weekends and plan activities such as hiking or cycling together.
+
+In conclusion, the decline in outdoor time among young people is largely caused by technology, safety concerns and a lack of green space. However, I believe that a combination of school initiatives, better urban planning and family habits could encourage the next generation to spend much more time outside.`,
+  },
 ]

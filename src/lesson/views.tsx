@@ -169,7 +169,7 @@ function DictationButton({ text }: { text: string }) {
       <button className="dictation-btn" onClick={() => speak(text)} aria-label="Écouter">
         <IconSpeaker size={34} />
       </button>
-      <button className="dictation-slow" onClick={() => speak(text, { profile: { usePreferred: true, rate: 0.65 } })}>
+      <button className="dictation-slow" onClick={() => speak(text, { slow: true })}>
         🐢 Plus lentement
       </button>
     </div>

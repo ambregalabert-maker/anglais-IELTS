@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { IconSpeaker } from '../components/Icons'
-import { speak } from '../lib/sound'
+import { speak, stopSpeaking } from '../lib/sound'
 import { useProgress } from '../store/progress'
 import Character from './Character'
 import type { CharacterDef } from './cast'
@@ -29,7 +29,7 @@ export default function SpeechBubble({ character, text, spoken, autoPlay = true,
     const t = setTimeout(play, 350)
     return () => {
       clearTimeout(t)
-      window.speechSynthesis?.cancel()
+      stopSpeaking()
     }
     // On ne relance la voix que si la phrase change
     // eslint-disable-next-line react-hooks/exhaustive-deps

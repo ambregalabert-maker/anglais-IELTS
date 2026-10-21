@@ -29,7 +29,10 @@ export const DEFAULT_PROGRESS: Progress = {
   tryhard: [],
   drafts: {},
   planChecks: {},
-  settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, difficulty: 'normal', theme: 'system', pomodoro: { enabled: false, work: 25, short: 5, long: 15, every: 4 } },
+  favorites: [],
+  practice: {},
+  paraphrases: [],
+  settings: { examDate: '2027-01-01', dailyGoalMinutes: 20, sound: true, voice: true, voiceURI: null, voiceRate: 0.9, voiceEngine: 'neural', flashDir: 'en', flashSize: 20, difficulty: 'normal', theme: 'system', pomodoro: { enabled: false, work: 25, short: 5, long: 15, every: 4 } },
 }
 
 const EMPTY_DAY: DayLog = { xp: 0, seconds: 0, exercises: 0, correct: 0 }
@@ -218,6 +221,39 @@ export function togglePlanCheck(day: string, taskId: string) {
   update((d) => {
     const list = d.planChecks[day] ?? []
     d.planChecks[day] = list.includes(taskId) ? list.filter((x) => x !== taskId) : [...list, taskId]
+  })
+}
+
+/** Enregistre le score d'une série de questions (Reading, Listening, Speaking). */
+export function recordPractice(id: string, score: number, total: number, activity: string) {
+  update((d) => {
+    const t = today(d)
+    t.exercises += total
+    t.correct += score
+    addXpTo(d, score * 2)
+    touchStreak(d)
+    t.activities = [...new Set([...(t.activities ?? []), activity])]
+    const prev = d.practice[id]
+    d.practice[id] = { best: Math.max(prev?.best ?? 0, score), total, last: dayKey(), tries: (prev?.tries ?? 0) + 1 }
+  })
+}
+
+export function addParaphrase(question: string, text: string) {
+  update((d) => {
+    d.paraphrases = [{ question, text }, ...d.paraphrases].slice(0, 200)
+  })
+}
+
+export function removeParaphrase(index: number) {
+  update((d) => {
+    d.paraphrases = d.paraphrases.filter((_, i) => i !== index)
+  })
+}
+
+/** Ajoute ou retire une flashcard des favoris. */
+export function toggleFavorite(id: string) {
+  update((d) => {
+    d.favorites = d.favorites.includes(id) ? d.favorites.filter((x) => x !== id) : [...d.favorites, id]
   })
 }
 

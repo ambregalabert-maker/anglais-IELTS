@@ -120,43 +120,60 @@ function spokenDigits(digits: string): string {
   return out.join(' ')
 }
 
-function dictation(): Exercise {
-  const kind = pick(['name', 'phone', 'date', 'price', 'time', 'address'] as const)
+type DictKind = 'name' | 'phone' | 'date' | 'price' | 'time' | 'address'
+const DICT_KINDS: DictKind[] = ['name', 'phone', 'date', 'price', 'time', 'address']
+
+// Numéros de téléphone fixes (toujours les mêmes) : chaque dictée a son enregistrement audio
+const PHONES = Array.from({ length: 40 }, (_, i) => {
+  let x = 1234567 + i * 7919
+  return `07${Array.from({ length: 9 }, () => ((x = (x * 1103515245 + 12345) % 2147483648), Math.floor(x / 65536) % 10)).join('')}`
+})
+const HOUSE_NUMBERS = [2, 7, 12, 14, 19, 23, 28, 31, 36, 40, 47, 52, 58, 63, 71, 76, 84, 90, 105, 118]
+const PENCE = [0, 25, 50, 75, 99]
+
+/** Toutes les dictées possibles d'un type (sert aussi à générer l'audio). */
+export function dictationsOf(kind: DictKind): Exercise[] {
   const base = { kind: 'type' as const, wordIds: [], instruction: 'Écoute et écris ce que tu entends', strict: true }
   switch (kind) {
-    case 'name': {
-      const n = pick(SURNAMES)
-      return { ...base, key: `lis:dict:name:${n}`, speak: `My surname is ${n}. That's ${n.toUpperCase().split('').join(', ')}.`, prompt: 'Nom de famille (épelé)', accepted: [n], answer: n, explanation: `Épellation : ${n.toUpperCase().split('').join('-')}.` }
-    }
-    case 'phone': {
-      const digits = `07${Array.from({ length: 9 }, () => rand(0, 9)).join('')}`
-      const spoken = `${spokenDigits(digits.slice(0, 5))}, ${spokenDigits(digits.slice(5))}`
-      return { ...base, key: `lis:dict:phone`, speak: `My number is ${spoken}.`, prompt: 'Numéro de téléphone', accepted: [digits], answer: digits, compact: true, explanation: '« oh » = 0, « double 4 » = 44.' }
-    }
-    case 'date': {
-      const d = rand(1, 28)
-      const m = pick(MONTHS)
-      return { ...base, strict: false, key: `lis:dict:date`, speak: `The course starts on the ${ordinal(d)} of ${m}.`, prompt: 'Date', accepted: [`${d} ${m}`, `${ordinal(d)} ${m}`, `${m} ${d}`, `${m} ${ordinal(d)}`, `the ${ordinal(d)} of ${m}`], answer: `${d} ${m}`, explanation: `Écris simplement : ${d} ${m} (ou ${ordinal(d)} ${m}). Attention à l’orthographe du mois.` }
-    }
-    case 'price': {
-      const pounds = rand(4, 95)
-      const pence = pick([0, 25, 50, 75, 99])
-      const value = pence ? `${pounds}.${String(pence).padStart(2, '0')}` : `${pounds}`
-      return { ...base, key: `lis:dict:price`, speak: `It costs £${value}.`, prompt: 'Prix (en £)', accepted: [value, `£${value}`, ...(pence ? [] : [`${pounds}.00`, `£${pounds}.00`])], answer: `£${value}`, compact: true, explanation: 'Écris le prix en chiffres.' }
-    }
-    case 'time': {
-      const h = rand(1, 11)
-      const m = pick([0, 15, 30, 45])
-      const spoken = m === 0 ? `${h} o'clock` : m === 15 ? `a quarter past ${h}` : m === 30 ? `half past ${h}` : `a quarter to ${h + 1}`
-      const mm = String(m).padStart(2, '0')
-      return { ...base, key: `lis:dict:time`, speak: `The bus leaves at ${spoken}.`, prompt: 'Heure (ex. 7.30)', accepted: [`${h}.${mm}`, `${h}:${mm}`, ...(m === 0 ? [`${h}`, `${h} o'clock`] : [])], answer: `${h}.${mm}`, compact: true, explanation: `« ${spoken} » = ${h}.${mm}.` }
-    }
-    case 'address': {
-      const num = rand(2, 120)
-      const st = pick(STREETS)
-      return { ...base, key: `lis:dict:addr`, speak: `The address is ${num} ${st}.`, prompt: 'Adresse', accepted: [`${num} ${st}`], answer: `${num} ${st}`, explanation: 'Majuscules aux noms de rues, et vérifie l’orthographe.' }
-    }
+    case 'name':
+      return SURNAMES.map((n) => ({ ...base, key: `lis:dict:name:${n}`, speak: `My surname is ${n}. That's ${n.toUpperCase().split('').join(', ')}.`, prompt: 'Nom de famille (épelé)', accepted: [n], answer: n, explanation: `Épellation : ${n.toUpperCase().split('').join('-')}.` }))
+    case 'phone':
+      return PHONES.map((digits) => {
+        const spoken = `${spokenDigits(digits.slice(0, 5))}, ${spokenDigits(digits.slice(5))}`
+        return { ...base, key: `lis:dict:phone`, speak: `My number is ${spoken}.`, prompt: 'Numéro de téléphone', accepted: [digits], answer: digits, compact: true, explanation: '« oh » = 0, « double 4 » = 44.' }
+      })
+    case 'date':
+      return MONTHS.flatMap((m) =>
+        Array.from({ length: 28 }, (_, i) => i + 1).map((d) => ({ ...base, strict: false, key: `lis:dict:date`, speak: `The course starts on the ${ordinal(d)} of ${m}.`, prompt: 'Date', accepted: [`${d} ${m}`, `${ordinal(d)} ${m}`, `${m} ${d}`, `${m} ${ordinal(d)}`, `the ${ordinal(d)} of ${m}`], answer: `${d} ${m}`, explanation: `Écris simplement : ${d} ${m} (ou ${ordinal(d)} ${m}). Attention à l’orthographe du mois.` })),
+      )
+    case 'price':
+      return Array.from({ length: 92 }, (_, i) => i + 4).flatMap((pounds) =>
+        PENCE.map((pence) => {
+          const value = pence ? `${pounds}.${String(pence).padStart(2, '0')}` : `${pounds}`
+          return { ...base, key: `lis:dict:price`, speak: `It costs £${value}.`, prompt: 'Prix (en £)', accepted: [value, `£${value}`, ...(pence ? [] : [`${pounds}.00`, `£${pounds}.00`])], answer: `£${value}`, compact: true, explanation: 'Écris le prix en chiffres.' }
+        }),
+      )
+    case 'time':
+      return Array.from({ length: 11 }, (_, i) => i + 1).flatMap((h) =>
+        [0, 15, 30, 45].map((m) => {
+          const spoken = m === 0 ? `${h} o'clock` : m === 15 ? `a quarter past ${h}` : m === 30 ? `half past ${h}` : `a quarter to ${h + 1}`
+          const mm = String(m).padStart(2, '0')
+          return { ...base, key: `lis:dict:time`, speak: `The bus leaves at ${spoken}.`, prompt: 'Heure (ex. 7.30)', accepted: [`${h}.${mm}`, `${h}:${mm}`, ...(m === 0 ? [`${h}`, `${h} o'clock`] : [])], answer: `${h}.${mm}`, compact: true, explanation: `« ${spoken} » = ${h}.${mm}.` }
+        }),
+      )
+    case 'address':
+      return STREETS.flatMap((st) =>
+        HOUSE_NUMBERS.map((num) => ({ ...base, key: `lis:dict:addr`, speak: `The address is ${num} ${st}.`, prompt: 'Adresse', accepted: [`${num} ${st}`], answer: `${num} ${st}`, explanation: 'Majuscules aux noms de rues, et vérifie l’orthographe.' })),
+      )
   }
+}
+
+export function allDictations(): Exercise[] {
+  return DICT_KINDS.flatMap(dictationsOf)
+}
+
+function dictation(): Exercise {
+  return pick(dictationsOf(pick(DICT_KINDS)))
 }
 
 export function listeningFromKey(key: string): Exercise | null {

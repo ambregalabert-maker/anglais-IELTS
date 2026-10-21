@@ -14,10 +14,10 @@ export default function NavBar({ active }: { active: ModuleDef }) {
       <div className="nav-brand">
         <span className="nav-brand-dot" /> Pépin <b>IELTS</b>
       </div>
-      {MODULES.map((m) => (
+      {MODULES.filter((m) => !m.hidden).map((m) => (
         <button
           key={m.id}
-          className={`nav-item ${m.id === active.id ? 'active' : ''}`}
+          className={`nav-item ${m.id === active.id ? 'active' : ''} ${m.phone === false ? 'desktop-only' : ''}`}
           style={{ ['--mod' as string]: m.color }}
           onClick={() => {
             playSound('tap')
@@ -29,7 +29,10 @@ export default function NavBar({ active }: { active: ModuleDef }) {
             {m.icon}
             {badges[m.id] > 0 && <span className="nav-badge">{badges[m.id] > 99 ? '99+' : badges[m.id]}</span>}
           </span>
-          <span className="nav-label">{m.label}</span>
+          <span className="nav-label">
+            <span className="label-long">{m.label}</span>
+            <span className="label-short">{m.short ?? m.label}</span>
+          </span>
         </button>
       ))}
     </nav>

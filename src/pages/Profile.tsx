@@ -7,7 +7,7 @@ import ModuleHeader from '../components/ModuleHeader'
 import { BADGES } from '../data/badges'
 import { formatDuration, formatLongDate } from '../lib/dates'
 import { levelInfo } from '../lib/levels'
-import { englishVoices, onVoicesChanged, speak, voiceScore } from '../lib/sound'
+import { englishVoices, onVoicesChanged, speak, voiceScore, type VoiceEngine } from '../lib/sound'
 import { toast } from '../store/events'
 import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../store/progress'
 import type { Difficulty, ThemePref } from '../store/types'
@@ -174,7 +174,7 @@ export default function Profile() {
           </span>
           <input type="checkbox" className="switch" checked={p.settings.voice} onChange={(e) => updateSettings({ voice: e.target.checked })} />
         </label>
-        {p.settings.voice && <VoiceSettings voiceURI={p.settings.voiceURI} rate={p.settings.voiceRate} />}
+        {p.settings.voice && <VoiceSettings engine={p.settings.voiceEngine} voiceURI={p.settings.voiceURI} rate={p.settings.voiceRate} />}
       </section>
 
       <h2 className="section-title">Sauvegarde</h2>
@@ -232,8 +232,8 @@ export default function Profile() {
           ))}
         </div>
         <p className="muted small-note">
-          Les voix dépendent de ton appareil : si deux personnages se ressemblent, c’est que ton téléphone n’a qu’une ou deux voix
-          anglaises installées (voir l’astuce dans « Voix » plus haut).
+          Chaque personnage a sa voix britannique enregistrée : Emma pour Pépin, George pour Earl Grey, Isabella pour Mia, Daniel
+          pour Bolt et Lily pour Nimbus.
         </p>
       </section>
     </div>
@@ -250,8 +250,8 @@ function Stat({ icon, value, label }: { icon: string; value: string | number; la
   )
 }
 
-/** Choix de la voix : la liste dépend de l'appareil (iPhone, Android, ordinateur…). */
-function VoiceSettings({ voiceURI, rate }: { voiceURI: string | null; rate: number }) {
+/** Réglages de la voix : voix humaines enregistrées (par défaut) ou voix de l'appareil. */
+function VoiceSettings({ engine, voiceURI, rate }: { engine: VoiceEngine; voiceURI: string | null; rate: number }) {
   const [voices, setVoices] = useState(englishVoices)
   useEffect(() => onVoicesChanged(() => setVoices(englishVoices())), [])
   const best = voices[0]
@@ -261,24 +261,54 @@ function VoiceSettings({ voiceURI, rate }: { voiceURI: string | null; rate: numb
     <div className="voice-settings">
       <div className="setting">
         <span>
-          <b>Voix anglaise</b>
-          <small>{voices.length ? `${voices.length} voix disponibles sur cet appareil` : 'Aucune voix anglaise trouvée sur cet appareil'}</small>
+          <b>Type de voix</b>
+          <small>
+            {engine === 'neural'
+              ? 'Voix humaines enregistrées : les mêmes sur tous les appareils, et hors ligne une fois écoutées'
+              : 'Voix installées sur cet appareil (qualité variable)'}
+          </small>
         </span>
-        <div className="voice-pick">
-          <select value={voiceURI ?? ''} onChange={(e) => updateSettings({ voiceURI: e.target.value || null })}>
-            <option value="">Automatique{best ? ` (${best.name})` : ''}</option>
-            {voices.map((v) => (
-              <option key={v.voiceURI} value={v.voiceURI}>
-                {voiceScore(v) >= 80 ? '★ ' : ''}
-                {v.name} · {v.lang}
-              </option>
-            ))}
-          </select>
-          <button className="chip" onClick={() => test(voiceURI ?? undefined)}>
-            ▶ Tester
+        <div className="segmented">
+          <button className={engine === 'neural' ? 'on' : ''} onClick={() => updateSettings({ voiceEngine: 'neural' })}>
+            Humaines ✨
+          </button>
+          <button className={engine === 'device' ? 'on' : ''} onClick={() => updateSettings({ voiceEngine: 'device' })}>
+            Appareil
           </button>
         </div>
       </div>
+      {engine === 'neural' ? (
+        <div className="setting">
+          <span>
+            <b>Voix principale : Emma</b>
+            <small>Britannique, comme à l’examen. Chaque personnage a aussi sa propre voix.</small>
+          </span>
+          <button className="chip" onClick={() => test()}>
+            ▶ Tester
+          </button>
+        </div>
+      ) : (
+        <div className="setting">
+          <span>
+            <b>Voix anglaise</b>
+            <small>{voices.length ? `${voices.length} voix disponibles sur cet appareil` : 'Aucune voix anglaise trouvée sur cet appareil'}</small>
+          </span>
+          <div className="voice-pick">
+            <select value={voiceURI ?? ''} onChange={(e) => updateSettings({ voiceURI: e.target.value || null })}>
+              <option value="">Automatique{best ? ` (${best.name})` : ''}</option>
+              {voices.map((v) => (
+                <option key={v.voiceURI} value={v.voiceURI}>
+                  {voiceScore(v) >= 80 ? '★ ' : ''}
+                  {v.name} · {v.lang}
+                </option>
+              ))}
+            </select>
+            <button className="chip" onClick={() => test(voiceURI ?? best?.voiceURI)}>
+              ▶ Tester
+            </button>
+          </div>
+        </div>
+      )}
       <div className="setting">
         <span>
           <b>Vitesse</b>
@@ -291,10 +321,12 @@ function VoiceSettings({ voiceURI, rate }: { voiceURI: string | null; rate: numb
           ))}
         </div>
       </div>
-      <p className="muted small-note">
-        Astuce iPhone : Réglages → Accessibilité → Contenu énoncé → Voix → Anglais (Royaume-Uni) → télécharge une voix « améliorée » ou
-        « premium » (ex. Serena, Daniel), puis choisis-la ici (★ = voix de bonne qualité).
-      </p>
+      {engine === 'device' && (
+        <p className="muted small-note">
+          Astuce iPhone : Réglages → Accessibilité → Contenu énoncé → Voix → Anglais (Royaume-Uni) → télécharge une voix « améliorée »
+          ou « premium » (ex. Serena, Daniel), puis choisis-la ici (★ = voix de bonne qualité).
+        </p>
+      )}
     </div>
   )
 }

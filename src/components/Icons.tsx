@@ -134,3 +134,32 @@ export function IconTrophy({ size = 30 }: IconProps) {
     </svg>
   )
 }
+
+export function IconBook({ size = 28 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
+      <path d="M4 7c4-2 8-2 12 1v18c-4-3-8-3-12-1z" fill="#c8f1ef" stroke="#00a8a8" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M28 7c-4-2-8-2-12 1v18c4-3 8-3 12-1z" fill="#fff" stroke="#00a8a8" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M19 13h5M19 17h5" stroke="#00a8a8" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function IconMic({ size = 28 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
+      <rect x="11" y="3" width="10" height="17" rx="5" fill="#ffc93c" stroke="#d19a00" strokeWidth="2" />
+      <path d="M7 15a9 9 0 0 0 18 0M16 24v5M11 29h10" stroke="#d19a00" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function IconExam({ size = 28 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
+      <rect x="6" y="4" width="20" height="25" rx="3" fill="#fff" stroke="#6c4cf5" strokeWidth="2" />
+      <rect x="11" y="2" width="10" height="5" rx="2" fill="#6c4cf5" />
+      <path d="M10 14l2 2 4-4M10 22l2 2 4-4M19 14h3M19 22h3" stroke="#6c4cf5" strokeWidth="2" fill="none" strokeLinecap="round" />
+    </svg>
+  )
+}

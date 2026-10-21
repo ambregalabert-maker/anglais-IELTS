@@ -1,7 +1,6 @@
 // Ce que les révisions doivent proposer : mots à revoir, erreurs à corriger, mots difficiles.
 
-import { UNITS } from '../data/units'
-import { ALL_WORDS, WORD_BY_ID, unitWords, type WordRef } from '../data/vocab'
+import { WORD_BY_ID, type WordRef } from '../data/vocab'
 import { dayKey } from '../lib/dates'
 import { MASTERED_BOX } from '../store/progress'
 import type { Progress } from '../store/types'
@@ -42,20 +41,4 @@ export function boxCounts(p: Progress): number[] {
   const counts = [0, 0, 0, 0, 0]
   for (const w of Object.values(p.words)) if (w.box >= 1) counts[Math.min(5, w.box) - 1]++
   return counts
-}
-
-export type Deck = 'due' | 'hard' | 'seen' | `unit:${string}`
-
-export function deckWords(p: Progress, deck: Deck): WordRef[] {
-  if (deck === 'due') return dueWords(p)
-  if (deck === 'hard') return weakWords(p).filter((w) => (p.words[w.id]?.wrong ?? 0) > 0)
-  if (deck === 'seen') return ALL_WORDS.filter((w) => p.words[w.id])
-  return unitWords(deck.slice(5))
-}
-
-export function deckTitle(deck: Deck): string {
-  if (deck === 'due') return 'Mots à revoir'
-  if (deck === 'hard') return 'Mots difficiles'
-  if (deck === 'seen') return 'Tous mes mots'
-  return UNITS.find((u) => u.id === deck.slice(5))?.title ?? 'Paquet'
 }

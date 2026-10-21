@@ -16,12 +16,15 @@ import HighlightedText from './HighlightedText'
 // La checklist de relecture du guide (étape 9)
 const CHECKLIST_T2 = [
   'J’ai répondu à TOUTES les parties de la question',
-  'Mon opinion / ma position finale est claire dans la conclusion',
+  'Ma position est claire et cohérente du début à la fin de l’essai',
   'Chaque paragraphe de développement a une seule idée principale',
   'J’ai expliqué mes idées au lieu de seulement les lister',
   'J’ai donné des exemples',
   'Mes paragraphes sont bien séparés',
   'Pas de contractions ni de langage familier',
+  'J’ai varié les connecteurs sans en mettre dans chaque phrase',
+  'Je n’ai pas répété les mots de la consigne : j’ai paraphrasé',
+  'J’ai utilisé au moins 3 phrases complexes (relatives, conditionnelles, passif)',
   'J’ai vérifié l’accord sujet-verbe, les temps, les articles et les pluriels',
   'J’ai vérifié l’orthographe et la ponctuation',
   'Mon essai fait au moins 250 mots',

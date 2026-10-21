@@ -1,19 +1,46 @@
 import Character from '../characters/Character'
 import { IconCards } from '../components/Icons'
 import ModuleHeader from '../components/ModuleHeader'
-import { UNITS } from '../data/units'
-import { CONTENT } from '../data/vocab'
 import { SpeakButton } from '../lesson/views'
-import { navigate } from '../lib/router'
+import { navigate, useRoute } from '../lib/router'
 import { playSound } from '../lib/sound'
 import { useProgress } from '../store/progress'
-import { boxCounts, dueWords, masteredCount, openMistakes, weakWords, type Deck } from '../review/data'
+import { boxCounts, dueWords, masteredCount, openMistakes, weakWords } from '../review/data'
+import FlashcardsHome from '../review/FlashcardsHome'
 
 // Intervalle avant de revoir un mot, selon sa boîte (doit correspondre à BOX_INTERVALS dans store/progress.ts)
 const BOX_LABELS = ['1 jour', '2 jours', '4 jours', '8 jours', '16 jours']
 const BOX_COLORS = ['#f0506e', '#ff9a4d', '#ffc93c', '#7ccf4a', '#2fbf71']
 
 export default function Review() {
+  const route = useRoute()
+  if (route === '/review/flashcards') return <FlashcardsHome />
+  return <ReviewHome />
+}
+
+/** Bouton d'entrée vers l'espace Flashcards. */
+function FlashEntry() {
+  return (
+    <section className="review-card flash-entry">
+      <span className="lab-icon">🃏</span>
+      <div className="review-card-text grow">
+        <h3>Espace Flashcards</h3>
+        <p>Paquets par thème et par niveau, collocations, connecteurs, prononciation, favoris. Dans les deux sens, ou à l’écoute.</p>
+      </div>
+      <button
+        className="btn btn-review"
+        onClick={() => {
+          playSound('tap')
+          navigate('/review/flashcards')
+        }}
+      >
+        Ouvrir
+      </button>
+    </section>
+  )
+}
+
+function ReviewHome() {
   const p = useProgress()
   const due = dueWords(p)
   const mistakes = openMistakes(p)
@@ -44,6 +71,7 @@ export default function Review() {
             </button>
           </div>
         </div>
+        <FlashEntry />
       </div>
     )
   }
@@ -104,20 +132,7 @@ export default function Review() {
         </div>
       </section>
 
-      <h2 className="section-title">Flashcards</h2>
-      <section className="card">
-        <p className="muted">Choisis un paquet. Tu retournes la carte, puis tu dis honnêtement si tu savais.</p>
-        <div className="chip-row deck-row">
-          <DeckChip deck="due" label={`⏰ À revoir (${due.length})`} disabled={!due.length} />
-          <DeckChip deck="hard" label={`🔥 Difficiles (${hard.length})`} disabled={!hard.length} />
-          <DeckChip deck="seen" label={`📚 Tous mes mots (${seen})`} />
-        </div>
-        <div className="chip-row deck-row">
-          {UNITS.filter((u) => CONTENT[u.id]).map((u) => (
-            <DeckChip key={u.id} deck={`unit:${u.id}`} label={u.title} color={u.color} />
-          ))}
-        </div>
-      </section>
+      <FlashEntry />
 
       <h2 className="section-title">Tes boîtes de mémoire</h2>
       <section className="card">
@@ -155,21 +170,5 @@ export default function Review() {
         </>
       )}
     </div>
-  )
-}
-
-function DeckChip({ deck, label, color, disabled }: { deck: Deck; label: string; color?: string; disabled?: boolean }) {
-  return (
-    <button
-      className="chip deck-chip"
-      style={color ? { ['--c' as string]: color } : undefined}
-      disabled={disabled}
-      onClick={() => {
-        playSound('tap')
-        navigate(`/review/cards/${deck}`)
-      }}
-    >
-      {label}
-    </button>
   )
 }

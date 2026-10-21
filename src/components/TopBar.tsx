@@ -4,7 +4,7 @@ import { navigate } from '../lib/router'
 import { playSound } from '../lib/sound'
 import { useToday } from '../store/hooks'
 import { updateSettings, useProgress } from '../store/progress'
-import { IconBolt, IconFlame } from './Icons'
+import { IconBolt, IconFlame, IconUser } from './Icons'
 import ProgressRing from './ProgressRing'
 
 /** Barre du haut : série, XP / niveau, objectif du jour, son. */
@@ -45,6 +45,9 @@ export default function TopBar() {
         aria-label={muted ? 'Activer le son' : 'Couper tout le son'}
       >
         {muted ? '🔇' : '🔊'}
+      </button>
+      <button className="icon-btn phone-only" onClick={() => navigate('/profile')} title="Profil" aria-label="Profil">
+        <IconUser size={24} />
       </button>
     </header>
   )

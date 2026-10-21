@@ -22,12 +22,12 @@ export function useDaysToExam() {
 
 /** Applique le thème (clair / sombre) et le réglage du son. */
 export function useApplySettings() {
-  const { theme, sound, voice, voiceURI, voiceRate } = useProgress().settings
+  const { theme, sound, voice, voiceURI, voiceRate, voiceEngine } = useProgress().settings
   useEffect(() => {
     const root = document.documentElement
     if (theme === 'system') root.removeAttribute('data-theme')
     else root.setAttribute('data-theme', theme)
   }, [theme])
   useEffect(() => setSoundEnabled(sound), [sound])
-  useEffect(() => configureVoice({ enabled: voice, voiceURI, rate: voiceRate }), [voice, voiceURI, voiceRate])
+  useEffect(() => configureVoice({ enabled: voice, voiceURI, rate: voiceRate, engine: voiceEngine }), [voice, voiceURI, voiceRate, voiceEngine])
 }

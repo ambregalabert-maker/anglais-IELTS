@@ -123,6 +123,9 @@ export default function TodayCard() {
             </div>
           ))}
           <p className="muted small-note">Le plan se recalcule si tu changes la date de l’examen (Profil → Réglages).</p>
+          <button className="link-btn" onClick={() => navigate('/exam')}>
+            📋 Le format de l’examen et ta note estimée
+          </button>
         </div>
       )}
     </section>
